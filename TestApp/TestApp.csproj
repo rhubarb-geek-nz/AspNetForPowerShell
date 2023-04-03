@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'WebForPowershell' " />
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.3.3" />
   </ItemGroup>

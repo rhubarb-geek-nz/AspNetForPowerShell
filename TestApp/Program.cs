@@ -20,7 +20,7 @@
  */
 
 using System.Management.Automation.Runspaces;
-using AspNetForPowerShell;
+using nz.geek.rhubarb.AspNetForPowerShell;
 
 var builder = WebApplication.CreateBuilder(args);
 

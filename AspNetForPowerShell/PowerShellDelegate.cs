@@ -29,7 +29,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using System.Management.Automation.Runspaces;
 
-namespace AspNetForPowerShell
+namespace nz.geek.rhubarb.AspNetForPowerShell
 {
     internal class StreamEncoding
     {
