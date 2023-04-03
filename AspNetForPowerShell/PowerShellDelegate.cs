@@ -1,3 +1,24 @@
+/**************************************************************************
+ *
+ *  Copyright 2023, Roger Brown
+ *
+ *  This file is part of rhubarb-geek-nz/AspNetForPowerShell.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
 using System;
 using System.Text;
 using System.Management.Automation;
@@ -10,109 +31,65 @@ using System.Management.Automation.Runspaces;
 
 namespace AspNetForPowerShell
 {
-    internal class OutputEncoding
+    internal class StreamEncoding
     {
-        internal Encoding Encoding = Encoding.UTF8;
+        internal readonly Stream Stream;
+        internal Encoding Encoding;
+        internal StreamEncoding(Stream s, Encoding e)
+        {
+            Stream = s;
+            Encoding = e;
+        }
+    }
+
+    internal class TypeWriter
+    {
+        internal readonly Type Type;
+        internal readonly Func<object, StreamEncoding, Task> Writer;
+        internal TypeWriter(Type t, Func<object, StreamEncoding, Task> w)
+        {
+            Type = t;
+            Writer = w;
+        }
     }
 
     public class PowerShellDelegate
     {
         readonly string _script;
-        readonly static byte[] EMPTY = Array.Empty<byte>();
         readonly InitialSessionState _initialSessionState;
 
-        static Func<object, OutputEncoding, byte[]> []Converters =
+        readonly static TypeWriter[] TypeWriters =
         {
-            ConvertFromByteArray,
-            ConvertFromByteIEnumerable,
-            ConvertFromObjectIEnumerable,
-            ConvertFromByte,
-            ConvertFromString,
-            ConvertFromEncoding,
-            ConvertFromFailed
+            new TypeWriter(typeof(byte[]),(o,e)=>{ byte[] ba=(byte[])o; return e.Stream.WriteAsync(ba,0,ba.Length); }),
+            new TypeWriter(typeof(string),(o,e)=>WriteObject(e.Encoding.GetBytes((string)o),e)),
+            new TypeWriter(typeof(char[]),(o,e)=>WriteObject(e.Encoding.GetBytes((char[])o),e)),
+            new TypeWriter(typeof(byte),(o,e)=>WriteObject(new byte[]{(byte)o},e)),
+            new TypeWriter(typeof(char),(o,e)=>WriteObject(new char[]{(char)o},e)),
+            new TypeWriter(typeof(Encoding),(o,e)=>{ e.Encoding=(Encoding)o; return Task.CompletedTask; }),
+            new TypeWriter(typeof(PSObject),(o,e)=>WriteObject(((PSObject)o).BaseObject,e)),
+            new TypeWriter(typeof(IEnumerable<byte>),(o,e)=>WriteObject(((IEnumerable<byte>)o).ToArray(),e)),
+            new TypeWriter(typeof(IEnumerable<char>),(o,e)=>WriteObject(((IEnumerable<char>)o).ToArray(),e)),
+            new TypeWriter(typeof(IEnumerable<object>),async (o,e)=>{ foreach(var obj in ((IEnumerable<object>)o)) { await WriteObject(obj,e); } })
         };
 
-        static byte[] ConvertFromByteArray(object output, OutputEncoding encoding)
+        static Task WriteObject(object obj, StreamEncoding encoding)
         {
-            if (output is byte[])
+            if (obj!=null)
             {
-                return (byte[])output;
-            }
+                Type type = obj.GetType();
 
-            return null;
-        }
-
-        static byte[] ConvertFromByteIEnumerable(object output, OutputEncoding encoding)
-        {
-            if (output is IEnumerable<byte>)
-            {
-                return ((IEnumerable<byte>)output).ToArray();
-            }
-
-            return null;
-        }
-
-        static byte[] ConvertFromObjectIEnumerable(object output, OutputEncoding encoding)
-        {
-            if (output is IEnumerable<object>)
-            {
-                IEnumerable<object> list = (IEnumerable<object>)output;
-                bool allBytes = true;
-                int count = 0;
-                foreach (var obj in list)
+                foreach (var typeWriter in TypeWriters)
                 {
-                    allBytes &= obj is byte;
-                    count++;
-                }
-                if (allBytes)
-                {
-                    byte[] ba = new byte[count];
-                    int i = 0;
-                    foreach (var obj in list)
+                    if (typeWriter.Type.IsAssignableFrom(type))
                     {
-                        ba[i++] = (byte)obj;
+                        return typeWriter.Writer(obj, encoding);
                     }
-                    return ba;
                 }
+
+                throw new InvalidDataException(type.FullName);
             }
 
-            return null;
-        }
-
-        static byte[] ConvertFromByte(object output, OutputEncoding encoding)
-        {
-            if (output is byte)
-            {
-                return new byte[] { (byte)output };
-            }
-
-            return null;
-        }
-
-        static byte[] ConvertFromString(object output, OutputEncoding encoding)
-        {
-            if (output is string)
-            {
-                return encoding.Encoding.GetBytes((string)output);
-            }
-
-            return null;
-        }
-
-        static byte[] ConvertFromEncoding(object output, OutputEncoding encoding)
-        {
-            if (output is Encoding)
-            {
-                encoding.Encoding = (Encoding)output;
-                return EMPTY;
-            }
-
-            return null;
-        }
-
-        static byte[] ConvertFromFailed(object output, OutputEncoding encoding)
-        {
-            throw new InvalidDataException();
+            return Task.CompletedTask;
         }
 
         public PowerShellDelegate(string script)
@@ -144,29 +121,7 @@ namespace AspNetForPowerShell
                     ? powerShell.InvokeAsync(new PSDataCollection<byte[]>(new byte[][] { buffer }))
                     : powerShell.InvokeAsync());
 
-                OutputEncoding encoding = new OutputEncoding();
-
-                var stream = context.Response.Body;
-
-                foreach (var item in output)
-                {
-                    var bo = item.BaseObject;
-
-                    foreach (var fn in Converters)
-                    {
-                        byte[] ba = fn(bo, encoding);
-
-                        if (ba != null)
-                        {
-                            if (ba.Length > 0)
-                            {
-                                await stream.WriteAsync(ba);
-                            }
-
-                            break;
-                        }
-                    }
-                }
+                await WriteObject(output, new StreamEncoding(context.Response.Body, Encoding.UTF8));
             }
         }
     }
