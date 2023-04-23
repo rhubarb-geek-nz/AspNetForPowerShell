@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.3.3">
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.3.4">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>

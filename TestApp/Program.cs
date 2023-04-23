@@ -21,38 +21,24 @@
 
 using System.Management.Automation.Runspaces;
 using nz.geek.rhubarb.AspNetForPowerShell;
+using TestApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
-string scriptGet = @"
-param(
-    [parameter(Mandatory=$true)]
-    $HttpContext
-)
-$Response=$HttpContext.Response
-$Response.StatusCode=200
-$Response.ContentType='text/plain'
-[System.Text.Encoding]::ASCII
-'Hello World'
-";
+ILogger<PowerShellDelegate> logger = app.Services.GetRequiredService<ILogger<PowerShellDelegate>>();
 
-string scriptPost = @"
-param(
-    [parameter(Mandatory=$true)]
-    $HttpContext,
-    [parameter(ValueFromPipeline=$true,Mandatory=$true)]
-    $pipelineInput
-)
-$Response=$HttpContext.Response
-$Response.StatusCode=200
-$Response.ContentType=$HttpContext.Request.ContentType
-Write-Output $pipelineInput -NoEnumerate
-";
+logger.LogInformation("Application Starting");
+
+IHostEnvironment env = app.Services.GetRequiredService<IHostEnvironment>();
 
 InitialSessionState iss = InitialSessionState.CreateDefault();
-app.MapGet("/", new PowerShellDelegate(iss,scriptGet).InvokeAsync);
-app.MapPost("/", new PowerShellDelegate(iss,scriptPost).InvokeAsync);
+
+iss.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
+
+var handler = new PowerShellDelegate(iss, Resources.Handler).InvokeAsync;
+
+app.Run((x) => handler(x));
 
 app.Run();

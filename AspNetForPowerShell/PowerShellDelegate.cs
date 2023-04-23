@@ -25,23 +25,13 @@ using System.Management.Automation;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using System.Management.Automation.Runspaces;
+using System.Net.Mime;
+using Microsoft.AspNetCore.Http;
 
 namespace nz.geek.rhubarb.AspNetForPowerShell
 {
-    internal class StreamEncoding
-    {
-        internal readonly Stream Stream;
-        internal Encoding Encoding;
-        internal StreamEncoding(Stream s, Encoding e)
-        {
-            Stream = s;
-            Encoding = e;
-        }
-    }
-
     internal class TypeWriter
     {
         internal readonly Type Type;
@@ -53,28 +43,43 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
         }
     }
 
-    public class PowerShellDelegate
+    internal class StreamEncoding
     {
-        readonly string _script;
-        readonly InitialSessionState _initialSessionState;
-
-        readonly static TypeWriter[] TypeWriters =
+        private readonly Stream stream;
+        private Encoding encoding;
+        internal readonly TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
+        internal Exception invokeException;
+        private readonly PSDataCollection<object> outputPipeline;
+        private readonly object mutex = new object();
+        private int head, tail;
+        private bool isCompleted, isFaulted, isWritable;
+        internal StreamEncoding(Stream s, Encoding e, PSDataCollection<object> o)
         {
-            new TypeWriter(typeof(byte[]),(o,e)=>{ byte[] ba=(byte[])o; return e.Stream.WriteAsync(ba,0,ba.Length); }),
-            new TypeWriter(typeof(string),(o,e)=>WriteObject(e.Encoding.GetBytes((string)o),e)),
-            new TypeWriter(typeof(char[]),(o,e)=>WriteObject(e.Encoding.GetBytes((char[])o),e)),
-            new TypeWriter(typeof(byte),(o,e)=>WriteObject(new byte[]{(byte)o},e)),
-            new TypeWriter(typeof(char),(o,e)=>WriteObject(new char[]{(char)o},e)),
-            new TypeWriter(typeof(Encoding),(o,e)=>{ e.Encoding=(Encoding)o; return Task.CompletedTask; }),
-            new TypeWriter(typeof(PSObject),(o,e)=>WriteObject(((PSObject)o).BaseObject,e)),
-            new TypeWriter(typeof(IEnumerable<byte>),(o,e)=>WriteObject(((IEnumerable<byte>)o).ToArray(),e)),
-            new TypeWriter(typeof(IEnumerable<char>),(o,e)=>WriteObject(((IEnumerable<char>)o).ToArray(),e)),
-            new TypeWriter(typeof(IEnumerable<object>),async (o,e)=>{ foreach(var obj in ((IEnumerable<object>)o)) { await WriteObject(obj,e); } })
+            stream = s;
+            encoding = e;
+            outputPipeline = o;
+
+            outputPipeline.DataAdded += DataAdded;
+            outputPipeline.Completed += Completed;
+        }
+
+        private readonly static TypeWriter[] TypeWriters =
+        {
+            new TypeWriter(typeof(byte[]),(o,e)=>{ byte[] ba=(byte[])o; return e.stream.WriteAsync(ba,0,ba.Length); }),
+            new TypeWriter(typeof(string),(o,e)=>e.WriteObject(e.encoding.GetBytes((string)o))),
+            new TypeWriter(typeof(char[]),(o,e)=>e.WriteObject(e.encoding.GetBytes((char[])o))),
+            new TypeWriter(typeof(byte),(o,e)=>e.WriteObject(new byte[]{(byte)o})),
+            new TypeWriter(typeof(char),(o,e)=>e.WriteObject(new char[]{(char)o})),
+            new TypeWriter(typeof(Encoding),(o,e)=>{ e.encoding=(Encoding)o; return Task.CompletedTask; }),
+            new TypeWriter(typeof(PSObject),(o,e)=>e.WriteObject(((PSObject)o).BaseObject)),
+            new TypeWriter(typeof(IEnumerable<byte>),(o,e)=>e.WriteObject(((IEnumerable<byte>)o).ToArray())),
+            new TypeWriter(typeof(IEnumerable<char>),(o,e)=>e.WriteObject(((IEnumerable<char>)o).ToArray())),
+            new TypeWriter(typeof(IEnumerable<object>),async (o,e)=>{ foreach(var obj in ((IEnumerable<object>)o)) { await e.WriteObject(obj); } })
         };
 
-        static Task WriteObject(object obj, StreamEncoding encoding)
+        private Task WriteObject(object obj)
         {
-            if (obj!=null)
+            if (obj != null)
             {
                 Type type = obj.GetType();
 
@@ -82,7 +87,7 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
                 {
                     if (typeWriter.Type.IsAssignableFrom(type))
                     {
-                        return typeWriter.Writer(obj, encoding);
+                        return typeWriter.Writer(obj, this);
                     }
                 }
 
@@ -91,6 +96,122 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
 
             return Task.CompletedTask;
         }
+
+        private void WriteNext()
+        {
+            int next = head;
+            object value = outputPipeline[next++];
+
+            head = next;
+
+            try
+            {
+                WriteObject(value).ContinueWith((t) =>
+                {
+                    ContinueWith(t, next);
+                });
+            }
+            catch (Exception ex)
+            {
+                if (!isCompleted)
+                {
+                    isFaulted = isCompleted = true;
+
+                    taskCompletionSource.SetException(ex);
+                }
+            }
+        }
+
+        private void DataAdded(object sender, DataAddedEventArgs e)
+        {
+            lock (mutex)
+            {
+                if (isWritable && head == tail && head == e.Index && !isFaulted)
+                {
+                    WriteNext();
+                }
+            }
+        }
+
+        private void ContinueWith(Task task, int next)
+        {
+            lock (mutex)
+            {
+                if (task.IsFaulted)
+                {
+                    if (!isCompleted && !isFaulted)
+                    {
+                        isFaulted = isCompleted = true;
+
+                        taskCompletionSource.SetException(task.Exception);
+                    }
+                }
+                else
+                {
+                    tail = next;
+
+                    if (next == outputPipeline.Count)
+                    {
+                        if (isCompleted && !isFaulted)
+                        {
+                            taskCompletionSource.SetResult();
+                        }
+                    }
+                    else
+                    {
+                        if (next == head && !isFaulted)
+                        {
+                            WriteNext();
+                        }
+                    }
+                }
+            }
+        }
+
+        private void Completed(object sender, EventArgs e)
+        {
+            lock (mutex)
+            {
+                isCompleted = true;
+
+                if (head == tail && head == outputPipeline.Count && isWritable && !isFaulted)
+                {
+                    taskCompletionSource.SetResult();
+                }
+            }
+        }
+
+        internal void IsWritable()
+        {
+            lock (mutex)
+            {
+                isWritable = true;
+
+                if (head == outputPipeline.Count)
+                {
+                    if (isCompleted && !isFaulted)
+                    {
+                        taskCompletionSource.SetResult();
+                    }
+                }
+                else
+                {
+                    WriteNext();
+                }
+            }
+        }
+    }
+
+    public class PowerShellDelegate
+    {
+        readonly string _script;
+        readonly InitialSessionState _initialSessionState;
+
+        private readonly static Dictionary<string, Encoding> ContentTypeEncodings = new Dictionary<string, Encoding>()
+        {
+            { MediaTypeNames.Application.Json, Encoding.UTF8},
+            { MediaTypeNames.Text.Plain, Encoding.ASCII }
+        };
 
         public PowerShellDelegate(string script)
         {
@@ -103,26 +224,127 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
             _script = script;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public Task InvokeAsync(HttpContext context)
         {
-            using (PowerShell powerShell = _initialSessionState == null
-                ? PowerShell.Create()
-                : PowerShell.Create(_initialSessionState))
+            HttpRequest request = context.Request;
+
+            PSDataCollection<object> inputPipeline = new PSDataCollection<object>();
+            PSDataCollection<object> outputPipeline = new PSDataCollection<object>();
+            StreamEncoding streamEncoding = new StreamEncoding(context.Response.Body, Encoding.UTF8, outputPipeline);
+
+            if (request.HasFormContentType)
             {
-                powerShell.AddScript(_script).AddParameter("HttpContext", context);
-
-                MemoryStream memory = new MemoryStream();
-
-                await context.Request.Body.CopyToAsync(memory);
-
-                byte [] buffer = memory.ToArray();
-
-                var output = await (buffer.Length > 0
-                    ? powerShell.InvokeAsync(new PSDataCollection<byte[]>(new byte[][] { buffer }))
-                    : powerShell.InvokeAsync());
-
-                await WriteObject(output, new StreamEncoding(context.Response.Body, Encoding.UTF8));
+                request.ReadFormAsync().ContinueWith((t) =>
+                {
+                    ContinueWith(t, context, streamEncoding, inputPipeline);
+                });
             }
+            else
+            {
+                string contentType = request.ContentType;
+
+                if (contentType == null)
+                {
+                    streamEncoding.IsWritable();
+                    inputPipeline.Complete();
+                }
+                else
+                {
+                    ContentType ct = new ContentType(contentType);
+                    Encoding encoding = ct.CharSet == null ? null : Encoding.GetEncoding(ct.CharSet);
+
+                    if (encoding == null)
+                    {
+                        if (ContentTypeEncodings.TryGetValue(contentType, out Encoding enc))
+                        {
+                            encoding = enc;
+                        }
+                    }
+
+                    if (encoding == null)
+                    {
+                        CopyToByteArrayAsync(request.Body).ContinueWith((t) =>
+                        {
+                            ContinueWith(t, context, streamEncoding, inputPipeline);
+                        });
+                    }
+                    else
+                    {
+                        CopyToStringAsync(request.Body, encoding).ContinueWith((t) =>
+                        {
+                            ContinueWith(t, context, streamEncoding, inputPipeline);
+                        });
+                    }
+                }
+            }
+
+            PowerShell powerShell = _initialSessionState == null
+                ? PowerShell.Create()
+                : PowerShell.Create(_initialSessionState);
+
+            powerShell.AddScript(_script).AddParameter("HttpContext", context);
+
+            Task invokeTask = powerShell.InvokeAsync(inputPipeline, outputPipeline).ContinueWith((t) =>
+            {
+                outputPipeline.Complete();
+
+                if (t.IsFaulted)
+                {
+                    streamEncoding.invokeException = t.Exception;
+                }
+            });
+
+            return Task.WhenAll(invokeTask, streamEncoding.taskCompletionSource.Task).ContinueWith((t) =>
+            {
+                powerShell.Dispose();
+
+                if (streamEncoding.invokeException != null)
+                {
+                    throw streamEncoding.invokeException;
+                }
+
+                if (t.IsFaulted)
+                {
+                    throw t.Exception; 
+                }
+            });
+        }
+
+        private void ContinueWith<T>(Task<T> task, HttpContext context, StreamEncoding streamEncoding, PSDataCollection<object> inputPipeline)
+        {
+            try
+            {
+                streamEncoding.IsWritable();
+
+                if (task.IsFaulted)
+                {
+                    inputPipeline.Add(new ErrorRecord(task.Exception, GetType().FullName + ".InvokeAsync", ErrorCategory.InvalidData, context));
+                }
+                else
+                {
+                    inputPipeline.Add(task.Result);
+                }
+            }
+            finally
+            {
+                inputPipeline.Complete();
+            }
+        }
+
+        private async Task<byte[]> CopyToByteArrayAsync(Stream stream)
+        {
+            MemoryStream memory = new MemoryStream();
+
+            await stream.CopyToAsync(memory);
+
+            return memory.ToArray();
+        }
+
+        private Task<string> CopyToStringAsync(Stream stream, Encoding encoding)
+        {
+            var reader = new StreamReader(stream, encoding);
+
+            return reader.ReadToEndAsync();
         }
     }
 }
