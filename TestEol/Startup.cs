@@ -20,21 +20,32 @@
  */
 
 using System.Management.Automation.Runspaces;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using nz.geek.rhubarb.AspNetForPowerShell;
-using TestApp;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace TestEol
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
 
-var app = builder.Build();
+        public IConfiguration Configuration { get; }
 
-var env = app.Services.GetRequiredService<IHostEnvironment>();
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            var iss = InitialSessionState.CreateDefault();
 
-var iss = InitialSessionState.CreateDefault();
+            iss.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
 
-iss.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
+            RequestDelegate handler = new PowerShellDelegate(iss, Resources.Handler).InvokeAsync;
 
-var handler = new PowerShellDelegate(iss, Resources.Handler).InvokeAsync;
-
-app.Run((x) => handler(x));
-
-await app.RunAsync();
+            app.Run((t) => handler(t));
+        }
+    }
+}

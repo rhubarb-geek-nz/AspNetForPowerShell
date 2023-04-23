@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetForPowerShell", "AspNetForPowerShell\AspNetForPowerShell.csproj", "{C8072F74-D013-4096-928E-CF1F3A950ACF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEol", "TestEol\TestEol.csproj", "{2A01FE75-6348-42A6-8A5A-611DDDCD859F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{C8072F74-D013-4096-928E-CF1F3A950ACF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8072F74-D013-4096-928E-CF1F3A950ACF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8072F74-D013-4096-928E-CF1F3A950ACF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A01FE75-6348-42A6-8A5A-611DDDCD859F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A01FE75-6348-42A6-8A5A-611DDDCD859F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A01FE75-6348-42A6-8A5A-611DDDCD859F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A01FE75-6348-42A6-8A5A-611DDDCD859F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

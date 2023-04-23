@@ -47,7 +47,7 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
     {
         private readonly Stream stream;
         private Encoding encoding;
-        internal readonly TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
+        internal readonly TaskCompletionSource<bool> taskCompletionSource = new TaskCompletionSource<bool>();
         internal Exception invokeException;
         private readonly PSDataCollection<object> outputPipeline;
         private readonly object mutex = new object();
@@ -154,7 +154,7 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
                     {
                         if (isCompleted && !isFaulted)
                         {
-                            taskCompletionSource.SetResult();
+                            taskCompletionSource.SetResult(true);
                         }
                     }
                     else
@@ -176,7 +176,7 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
 
                 if (head == tail && head == outputPipeline.Count && isWritable && !isFaulted)
                 {
-                    taskCompletionSource.SetResult();
+                    taskCompletionSource.SetResult(true);
                 }
             }
         }
@@ -191,7 +191,7 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
                 {
                     if (isCompleted && !isFaulted)
                     {
-                        taskCompletionSource.SetResult();
+                        taskCompletionSource.SetResult(true);
                     }
                 }
                 else

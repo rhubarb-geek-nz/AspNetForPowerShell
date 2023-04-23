@@ -20,21 +20,25 @@
  */
 
 using System.Management.Automation.Runspaces;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using nz.geek.rhubarb.AspNetForPowerShell;
-using TestApp;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace TestEol
+{
+    public class Program
+    {
+        public static Task Main(string[] args)
+        {
+            return CreateHostBuilder(args).Build().RunAsync();
+        }
 
-var app = builder.Build();
-
-var env = app.Services.GetRequiredService<IHostEnvironment>();
-
-var iss = InitialSessionState.CreateDefault();
-
-iss.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
-
-var handler = new PowerShellDelegate(iss, Resources.Handler).InvokeAsync;
-
-app.Run((x) => handler(x));
-
-await app.RunAsync();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
+}
