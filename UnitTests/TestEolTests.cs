@@ -19,6 +19,7 @@
  *
  */
 
+using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -46,10 +47,69 @@ namespace UnitTests
 
             Assert.AreEqual("text/plain", response.Content.Headers.ContentType.ToString());
 
-            foreach (var value in new string[] { " GET ", $" {url}"})
-            {
-                Assert.IsTrue(content.Contains(value), $"Response must contain '{value}'");
-            }
+            Assert.AreEqual($"GET {url} ", content);
+        }
+
+        [TestMethod]
+        public async Task GetHeaders()
+        {
+            using var app = new WebApplicationFactory<Program>();
+
+            using var client = app.CreateClient();
+
+            var response = await client.GetAsync("/Headers");
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            Assert.AreEqual("application/json", response.Content.Headers.ContentType.ToString());
+
+            var result = JsonNode.Parse(content);
+
+            Assert.AreEqual("Host", result["Key"].ToString());
+            Assert.AreEqual("localhost", result["Value"][0].ToString());
+        }
+
+        [TestMethod]
+        public async Task GetQuery()
+        {
+            using var app = new WebApplicationFactory<Program>();
+
+            using var client = app.CreateClient();
+
+            var response = await client.GetAsync("/Query?a=b");
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            Assert.AreEqual("application/json", response.Content.Headers.ContentType.ToString());
+
+            var result = JsonNode.Parse(content);
+
+            Assert.AreEqual("a", result["Key"].ToString());
+            Assert.AreEqual("b", result["Value"][0].ToString());
+        }
+
+        [TestMethod]
+        public async Task GetPSVersionTable()
+        {
+            using var app = new WebApplicationFactory<Program>();
+
+            using var client = app.CreateClient();
+
+            var response = await client.GetAsync("/PSVersionTable");
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            Assert.AreEqual("application/json", response.Content.Headers.ContentType.ToString());
+
+            var result = JsonNode.Parse(content);
+
+            Assert.AreEqual("Core", result["PSEdition"].ToString());
         }
 
         [TestMethod]
@@ -135,11 +195,10 @@ namespace UnitTests
         public async Task PostQueryString()
         {
             using var app = new WebApplicationFactory<Program>();
-            string url = "/bar?a=b";
 
             using var client = app.CreateClient();
 
-            var response = await client.PostAsync(url, null);
+            var response = await client.PostAsync("/bar?a=b", null);
 
             response.EnsureSuccessStatusCode();
 
@@ -147,10 +206,7 @@ namespace UnitTests
 
             Assert.AreEqual("text/plain", response.Content.Headers.ContentType.ToString());
 
-            foreach (var value in new string[] { " POST ", " /bar ", " ?a=b" })
-            {
-                Assert.IsTrue(content.Contains(value), $"Response must contain '{value}'");
-            }
+            Assert.AreEqual("POST /bar ?a=b",content);
         }
     }
 }
