@@ -37,3 +37,23 @@ Write-Output $pipelineInput -NoEnumerate
 ```
 
 The `-NoEnumerate` is to write a byte array rather than individual bytes onto the pipeline.
+
+## Delegate Implementation
+
+The delegate uses the asynchronous programming model in order to allow overlapping of both input and output.
+
+### InitialSessionState
+
+An `InitialSessionState` can be used to provide state that will be shared by each request invocation.
+
+### Input Pipeline
+
+The request body is fed into to the input pipeline. The input can either be an `IFormCollection`, a byte array or a string depending on the `Content-Type`.
+
+### Output Pipeline
+
+The output pipeline is written to the response body. The output is written as the objects are added to the pipeline. Only primitives that can be converted to characters or bytes are supported. An `Encoding` type will set the current character encoding.
+
+### Response Status
+
+The response status and any headers should be applied to the `HttpContext` before the output is written.
