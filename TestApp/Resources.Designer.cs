@@ -70,18 +70,22 @@ namespace TestApp {
         ///$Request = $HttpContext.Request
         ///$Response = $HttpContext.Response
         ///$Response.StatusCode = 200
-        ///if ( $pipelineInput -And $Request.ContentType )
+        ///
+        ///if ( $pipelineInput )
         ///{
-        ///    $Response.ContentType=$Request.ContentType
-        ///    Write-Output $pipelineInput -NoEnumerate
+        ///    $Response.ContentType = &apos;application/json&apos;
+        ///    $pipelineInput | ConvertTo-JSON
         ///}
         ///else
         ///{
-        ///    $Response.ContentType=&apos;text/plain&apos;
-        ///    [System.Text.Encoding]::ASCII
-        ///    &apos;Hello World&apos;
+        ///    $Response.ContentType = &apos;text/plain&apos;
+        ///    $ContentRoot
         ///    &apos; &apos;
-        ///    $Request [rest of string was truncated]&quot;;.
+        ///    $Request.Method
+        ///    &apos; &apos;
+        ///    $Request.Path.Value
+        ///    &apos; &apos;
+        ///    $Request.Qu [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Handler {
             get {

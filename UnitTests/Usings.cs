@@ -19,25 +19,5 @@
  *
  */
 
-using System.Management.Automation.Runspaces;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using nz.geek.rhubarb.AspNetForPowerShell;
-
-namespace TestEol
-{
-    public class Startup
-    {
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            var iss = InitialSessionState.CreateDefault();
-
-            iss.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
-
-            RequestDelegate handler = new PowerShellDelegate(iss, Resources.Handler).InvokeAsync;
-
-            app.Run((t) => handler(t));
-        }
-    }
-}
+global using Microsoft.VisualStudio.TestTools.UnitTesting;
+global using Microsoft.AspNetCore.Mvc.Testing;
