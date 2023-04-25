@@ -10,6 +10,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEol", "TestEol\TestEol.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{80287E39-0F40-42DB-82F3-17DE850EC366}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerShellDelegate", "PowerShellDelegate\PowerShellDelegate.csproj", "{DB86CA41-EF9F-4536-9A7A-11B538B08D51}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{80287E39-0F40-42DB-82F3-17DE850EC366}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80287E39-0F40-42DB-82F3-17DE850EC366}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80287E39-0F40-42DB-82F3-17DE850EC366}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB86CA41-EF9F-4536-9A7A-11B538B08D51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB86CA41-EF9F-4536-9A7A-11B538B08D51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB86CA41-EF9F-4536-9A7A-11B538B08D51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB86CA41-EF9F-4536-9A7A-11B538B08D51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

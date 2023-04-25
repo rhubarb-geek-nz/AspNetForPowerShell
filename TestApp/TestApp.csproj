@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetForPowerShell\AspNetForPowerShell.csproj">
+    <ProjectReference Include="..\PowerShellDelegate\PowerShellDelegate.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>
