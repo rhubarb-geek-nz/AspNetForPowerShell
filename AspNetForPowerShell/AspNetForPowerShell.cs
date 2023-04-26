@@ -52,7 +52,6 @@ namespace RhubarbGeekNz.AspNetForPowerShell
     }
 
     [Cmdlet(VerbsCommon.Set, "PowerShellDelegate")]
-    [OutputType(typeof(RequestDelegate))]
     public class SetPowerShellDelegate : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
