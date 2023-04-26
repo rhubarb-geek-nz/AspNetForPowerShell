@@ -19,11 +19,13 @@
  *
  */
 
+using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using nz.geek.rhubarb.AspNetForPowerShell;
+using Microsoft.Extensions.Logging.Abstractions;
+using RhubarbGeekNz.AspNetForPowerShell;
 
 namespace TestEol
 {
@@ -31,13 +33,44 @@ namespace TestEol
     {
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            var iss = InitialSessionState.CreateDefault();
+            var initialSessionState = InitialSessionState.CreateDefault();
 
-            iss.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
+            initialSessionState.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
 
-            RequestDelegate handler = new PowerShellDelegate(iss, Resources.Handler).InvokeAsync;
+            var installer = InitialSessionState.CreateDefault();
 
-            app.Run((t) => handler(t));
+            installer.Commands.Add(new SessionStateCmdletEntry("New-PowerShellDelegate",typeof(NewPowerShellDelegate),null));
+            installer.Commands.Add(new SessionStateCmdletEntry("Set-PowerShellDelegate", typeof(SetPowerShellDelegate), null));
+
+            using (Runspace runspace = RunspaceFactory.CreateRunspace(installer))
+            {
+                runspace.Open();
+
+                try
+                {
+                    RequestDelegate requestDelegate;
+
+                    using (PowerShell powerShell = PowerShell.Create(runspace))
+                    {
+                        powerShell.AddCommand("New-PowerShellDelegate").AddArgument(Resources.Handler).AddArgument(initialSessionState);
+
+                        var result = powerShell.Invoke();
+
+                        requestDelegate = (RequestDelegate)result[0].BaseObject;
+                    }
+
+                    using (PowerShell powerShell = PowerShell.Create(runspace))
+                    {
+                        powerShell.AddCommand("Set-PowerShellDelegate").AddArgument(app).AddArgument(requestDelegate);
+
+                        powerShell.Invoke();
+                    }
+                }
+                finally
+                {
+                    runspace.Close();
+                }
+            }
         }
     }
 }

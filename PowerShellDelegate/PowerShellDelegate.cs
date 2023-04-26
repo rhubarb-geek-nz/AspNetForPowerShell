@@ -30,7 +30,7 @@ using System.Management.Automation.Runspaces;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 
-namespace nz.geek.rhubarb.AspNetForPowerShell
+namespace RhubarbGeekNz.AspNetForPowerShell
 {
     internal class TypeWriter
     {
@@ -218,10 +218,10 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
             _script = script;
         }
 
-        public PowerShellDelegate(InitialSessionState initialSessionState, string script)
+        public PowerShellDelegate(string script, InitialSessionState initialSessionState)
         {
-            _initialSessionState = initialSessionState;
             _script = script;
+            _initialSessionState = initialSessionState;
         }
 
         public Task InvokeAsync(HttpContext context)
@@ -282,16 +282,16 @@ namespace nz.geek.rhubarb.AspNetForPowerShell
                 ? PowerShell.Create()
                 : PowerShell.Create(_initialSessionState);
 
-            powerShell.AddScript(_script).AddParameter("HttpContext", context);
+            powerShell.AddScript(_script).AddParameter("context", context);
 
             Task invokeTask = powerShell.InvokeAsync(inputPipeline, outputPipeline).ContinueWith((t) =>
             {
-                outputPipeline.Complete();
-
                 if (t.IsFaulted)
                 {
                     streamEncoding.invokeException = t.Exception;
                 }
+
+                outputPipeline.Complete();
             });
 
             return Task.WhenAll(invokeTask, streamEncoding.taskCompletionSource.Task).ContinueWith((t) =>

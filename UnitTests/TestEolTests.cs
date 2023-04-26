@@ -19,7 +19,9 @@
  *
  */
 
-using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -91,6 +93,59 @@ namespace UnitTests
             Assert.AreEqual("a", result["Key"].ToString());
             Assert.AreEqual("b", result["Value"][0].ToString());
         }
+
+        [TestMethod]
+        public async Task GetContentRoot()
+        {
+            using var app = new WebApplicationFactory<Program>();
+            var env = app.Services.GetService<IWebHostEnvironment>();
+            using var client = app.CreateClient();
+
+            var response = await client.GetAsync("/ContentRoot");
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            Assert.AreEqual("text/plain", response.Content.Headers.ContentType.ToString());
+            Assert.AreEqual(env.ContentRootPath, content);
+        }
+
+        [TestMethod]
+        public async Task GetNotFound()
+        {
+            using var app = new WebApplicationFactory<Program>();
+            using var client = app.CreateClient();
+
+            var response = await client.GetAsync("/NotFound");
+
+            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            Assert.AreEqual("text/plain", response.Content.Headers.ContentType.ToString());
+            Assert.AreEqual("not found", content);
+        }
+
+        [TestMethod]
+        public async Task GetFault()
+        {
+            using var app = new WebApplicationFactory<Program>();
+            using var client = app.CreateClient();
+            bool fault = false;
+
+            try
+            {
+                await client.GetAsync("/Fault");
+            } 
+            catch (AggregateException)
+            {
+                fault = true;
+            }
+
+            Assert.IsTrue(fault,"exception should have been thrown");
+        }
+
 
         [TestMethod]
         public async Task GetPSVersionTable()

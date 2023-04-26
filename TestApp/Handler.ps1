@@ -1,16 +1,16 @@
 ﻿param(
     [parameter(Mandatory=$true)]
-    $HttpContext,
+    $context,
     [parameter(ValueFromPipeline=$true,Mandatory=$false)]
     $pipelineInput
 )
-$Request = $HttpContext.Request
-$Response = $HttpContext.Response
-$Response.StatusCode = 200
+$request = $context.Request
+$response = $context.Response
+$response.StatusCode = 200
 
 if ( $pipelineInput )
 {
-    $Response.ContentType = 'application/json'
+    $response.ContentType = 'application/json'
     $pipelineInput | ConvertTo-JSON
 }
 else
@@ -18,28 +18,36 @@ else
     switch ( $Request.Path.Value )
     {
         '/PSVersionTable' {
-            $Response.ContentType = 'application/json'
+            $response.ContentType = 'application/json'
             $PSVersionTable | ConvertTo-JSON
         }
         '/Query' {
-            $Response.ContentType = 'application/json'
-            $Request.Query | ConvertTo-JSON
+            $response.ContentType = 'application/json'
+            $request.Query | ConvertTo-JSON
         }
         '/Headers' {
-            $Response.ContentType = 'application/json'
-            $Request.Headers | ConvertTo-JSON
+            $response.ContentType = 'application/json'
+            $request.Headers | ConvertTo-JSON
         }
         '/ContentRoot' {
-            $Response.ContentType = 'text/plain'
+            $response.ContentType = 'text/plain'
             $ContentRoot
         }
+        '/NotFound' {
+            $response.StatusCode = 404
+            $response.ContentType = 'text/plain'
+            'not found'
+        }
+        '/Fault' {
+            throw 'fault'
+        }
         default {
-            $Response.ContentType = 'text/plain'
-            $Request.Method
+            $response.ContentType = 'text/plain'
+            $request.Method
             ' '
-            $Request.Path.Value
+            $request.Path.Value
             ' '
-            $Request.QueryString.Value
+            $request.QueryString.Value
         }
     }
 }

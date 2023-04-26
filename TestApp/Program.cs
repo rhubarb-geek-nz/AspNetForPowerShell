@@ -20,7 +20,7 @@
  */
 
 using System.Management.Automation.Runspaces;
-using nz.geek.rhubarb.AspNetForPowerShell;
+using RhubarbGeekNz.AspNetForPowerShell;
 using TestApp;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +33,7 @@ var iss = InitialSessionState.CreateDefault();
 
 iss.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
 
-var handler = new PowerShellDelegate(iss, Resources.Handler).InvokeAsync;
+var handler = new PowerShellDelegate(Resources.Handler, iss).InvokeAsync;
 
 app.Run((x) => handler(x));
 
