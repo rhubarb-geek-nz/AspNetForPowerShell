@@ -42,7 +42,7 @@ namespace RhubarbGeekNz.AspNetForPowerShell
         protected override void ProcessRecord()
         {
             PowerShellDelegate powerShellDelegate = InitialSessionState == null ? new PowerShellDelegate(Script) : new PowerShellDelegate(Script, InitialSessionState);
-			RequestDelegate requestDelegate = powerShellDelegate.InvokeAsync;
+            RequestDelegate requestDelegate = powerShellDelegate.InvokeAsync;
             WriteObject(requestDelegate);
         }
 

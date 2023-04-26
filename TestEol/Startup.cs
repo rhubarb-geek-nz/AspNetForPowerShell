@@ -39,7 +39,7 @@ namespace TestEol
 
             var installer = InitialSessionState.CreateDefault();
 
-            installer.Commands.Add(new SessionStateCmdletEntry("New-PowerShellDelegate",typeof(NewPowerShellDelegate),null));
+            installer.Commands.Add(new SessionStateCmdletEntry("New-PowerShellDelegate", typeof(NewPowerShellDelegate), null));
             installer.Commands.Add(new SessionStateCmdletEntry("Set-PowerShellDelegate", typeof(SetPowerShellDelegate), null));
 
             using (Runspace runspace = RunspaceFactory.CreateRunspace(installer))
