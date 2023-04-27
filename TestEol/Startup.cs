@@ -23,8 +23,6 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging.Abstractions;
 using RhubarbGeekNz.AspNetForPowerShell;
 
 namespace TestEol
@@ -48,7 +46,7 @@ namespace TestEol
 
                 try
                 {
-                    RequestDelegate requestDelegate;
+                    object requestDelegate;
 
                     using (PowerShell powerShell = PowerShell.Create(runspace))
                     {
@@ -56,7 +54,7 @@ namespace TestEol
 
                         var result = powerShell.Invoke();
 
-                        requestDelegate = (RequestDelegate)result[0].BaseObject;
+                        requestDelegate = result[0].BaseObject;
                     }
 
                     using (PowerShell powerShell = PowerShell.Create(runspace))
