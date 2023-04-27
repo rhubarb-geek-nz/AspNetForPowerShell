@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TestApp\TestApp.csproj" />
     <ProjectReference Include="..\TestEol\TestEol.csproj" />
     <ProjectReference Include="..\PowerShellDelegate\PowerShellDelegate.csproj" />
   </ItemGroup>

@@ -19,24 +19,11 @@
  *
  */
 
-using TestEol;
-
 namespace UnitTests
 {
-    [TestClass]
-    public class TestEolTests : ClientTests
+    public interface IWebClient : IDisposable
     {
-        protected override IWebClient CreateWebClient() => new TestEolWebClient();
-    }
-
-    class TestEolWebClient : IWebClient
-    {
-        WebApplicationFactory<Program> factory = new ();
-
-        public IServiceProvider Services => factory.Services;
-
-        public HttpClient CreateClient() => factory.CreateClient();
-
-        public void Dispose() => factory.Dispose();
+        HttpClient CreateClient();
+        IServiceProvider Services { get; }
     }
 }
