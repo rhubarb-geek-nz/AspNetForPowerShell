@@ -40,34 +40,11 @@ namespace TestEol
             installer.Commands.Add(new SessionStateCmdletEntry("New-PowerShellDelegate", typeof(NewPowerShellDelegate), null));
             installer.Commands.Add(new SessionStateCmdletEntry("Set-PowerShellDelegate", typeof(SetPowerShellDelegate), null));
 
-            using (Runspace runspace = RunspaceFactory.CreateRunspace(installer))
+            using (PowerShell powerShell = PowerShell.Create(installer))
             {
-                runspace.Open();
+                powerShell.AddScript(Resources.Startup).AddArgument(app).AddArgument(initialSessionState).AddArgument(Resources.Handler);
 
-                try
-                {
-                    object requestDelegate;
-
-                    using (PowerShell powerShell = PowerShell.Create(runspace))
-                    {
-                        powerShell.AddCommand("New-PowerShellDelegate").AddArgument(Resources.Handler).AddArgument(initialSessionState);
-
-                        var result = powerShell.Invoke();
-
-                        requestDelegate = result[0].BaseObject;
-                    }
-
-                    using (PowerShell powerShell = PowerShell.Create(runspace))
-                    {
-                        powerShell.AddCommand("Set-PowerShellDelegate").AddArgument(app).AddArgument(requestDelegate);
-
-                        powerShell.Invoke();
-                    }
-                }
-                finally
-                {
-                    runspace.Close();
-                }
+                powerShell.Invoke();
             }
         }
     }
