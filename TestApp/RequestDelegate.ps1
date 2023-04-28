@@ -15,7 +15,7 @@ if ( $pipelineInput )
 }
 else
 {
-    switch ( $Request.Path.Value )
+    switch ( $request.Path.Value )
     {
         '/PSVersionTable' {
             $response.ContentType = 'application/json'
