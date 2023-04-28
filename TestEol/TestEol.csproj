@@ -40,4 +40,8 @@
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.3.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

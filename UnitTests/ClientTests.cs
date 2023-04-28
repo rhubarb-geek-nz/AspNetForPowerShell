@@ -95,13 +95,13 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public async Task GetContentRoot()
+        public async Task GetContentRootPath()
         {
             using var app = CreateWebClient();
             var env = app.Services.GetService<IWebHostEnvironment>();
             using var client = app.CreateClient();
 
-            var response = await client.GetAsync("/ContentRoot");
+            var response = await client.GetAsync("/ContentRootPath");
 
             response.EnsureSuccessStatusCode();
 
@@ -109,6 +109,23 @@ namespace UnitTests
 
             Assert.AreEqual("text/plain", response.Content.Headers.ContentType.ToString());
             Assert.AreEqual(env.ContentRootPath, content);
+        }
+
+        [TestMethod]
+        public async Task GetWebRootPath()
+        {
+            using var app = CreateWebClient();
+            var env = app.Services.GetService<IWebHostEnvironment>();
+            using var client = app.CreateClient();
+
+            var response = await client.GetAsync("/WebRootPath");
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            Assert.AreEqual("text/plain", response.Content.Headers.ContentType.ToString());
+            Assert.AreEqual(env.WebRootPath, content);
         }
 
         [TestMethod]

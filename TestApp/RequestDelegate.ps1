@@ -29,9 +29,13 @@ else
             $response.ContentType = 'application/json'
             $request.Headers | ConvertTo-JSON
         }
-        '/ContentRoot' {
+        '/ContentRootPath' {
             $response.ContentType = 'text/plain'
-            $ContentRoot
+            $ContentRootPath
+        }
+        '/WebRootPath' {
+            $response.ContentType = 'text/plain'
+            $WebRootPath
         }
         '/NotFound' {
             $response.StatusCode = 404

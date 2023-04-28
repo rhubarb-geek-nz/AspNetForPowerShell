@@ -29,7 +29,5 @@ namespace UnitTests
         protected override IWebClient CreateWebClient() => new TestEolWebClient();
     }
 
-    class TestEolWebClient : WebApplicationFactory<Program>, IWebClient
-    {
-    }
+    class TestEolWebClient : WebApplicationFactory<Program>, IWebClient { }
 }

@@ -37,11 +37,8 @@ namespace UnitTests
         static readonly MethodInfo methodCreateClient = typeFactoryProgram.GetMethod("CreateClient", Array.Empty<Type>());
 
         readonly IDisposable factory = (IDisposable)Activator.CreateInstance(typeFactoryProgram);
-
         public IServiceProvider Services => (IServiceProvider)propertyServices.GetValue(factory);
-
         public HttpClient CreateClient() => (HttpClient)methodCreateClient.Invoke(factory,null);
-
         public void Dispose() => factory.Dispose();
     }
 }

@@ -27,11 +27,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
-var env = app.Services.GetRequiredService<IHostEnvironment>();
+var env = app.Services.GetRequiredService<IWebHostEnvironment>();
 
 var iss = InitialSessionState.CreateDefault();
 
-iss.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
+iss.Variables.Add(new[]{
+    new SessionStateVariableEntry("ContentRootPath", env.ContentRootPath, "Content Root Path"),
+    new SessionStateVariableEntry("WebRootPath", env.WebRootPath, "Web Root Path")
+});
 
 var requestDelegate = new PowerShellDelegate(Resources.RequestDelegate, iss).InvokeAsync;
 

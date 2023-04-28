@@ -226,11 +226,47 @@ namespace RhubarbGeekNz.AspNetForPowerShell
 
         public Task InvokeAsync(HttpContext context)
         {
-            HttpRequest request = context.Request;
-
             PSDataCollection<object> inputPipeline = new PSDataCollection<object>();
             PSDataCollection<object> outputPipeline = new PSDataCollection<object>();
             StreamEncoding streamEncoding = new StreamEncoding(context.Response.Body, Encoding.UTF8, outputPipeline);
+
+            ReadInputPipeline(context,streamEncoding, inputPipeline);
+
+            PowerShell powerShell = _initialSessionState == null
+                ? PowerShell.Create()
+                : PowerShell.Create(_initialSessionState);
+
+            powerShell.AddScript(_script).AddParameter("context", context);
+
+            Task invokeTask = powerShell.InvokeAsync(inputPipeline, outputPipeline).ContinueWith((t) =>
+            {
+                if (t.IsFaulted)
+                {
+                    streamEncoding.invokeException = t.Exception;
+                }
+
+                outputPipeline.Complete();
+            });
+
+            return Task.WhenAll(invokeTask, streamEncoding.taskCompletionSource.Task).ContinueWith((t) =>
+            {
+                powerShell.Dispose();
+
+                if (streamEncoding.invokeException != null)
+                {
+                    throw streamEncoding.invokeException;
+                }
+
+                if (t.IsFaulted)
+                {
+                    throw t.Exception;
+                }
+            });
+        }
+
+        private void ReadInputPipeline(HttpContext context, StreamEncoding streamEncoding, PSDataCollection<object> inputPipeline)
+        {
+            HttpRequest request = context.Request;
 
             if (request.HasFormContentType)
             {
@@ -277,37 +313,6 @@ namespace RhubarbGeekNz.AspNetForPowerShell
                     }
                 }
             }
-
-            PowerShell powerShell = _initialSessionState == null
-                ? PowerShell.Create()
-                : PowerShell.Create(_initialSessionState);
-
-            powerShell.AddScript(_script).AddParameter("context", context);
-
-            Task invokeTask = powerShell.InvokeAsync(inputPipeline, outputPipeline).ContinueWith((t) =>
-            {
-                if (t.IsFaulted)
-                {
-                    streamEncoding.invokeException = t.Exception;
-                }
-
-                outputPipeline.Complete();
-            });
-
-            return Task.WhenAll(invokeTask, streamEncoding.taskCompletionSource.Task).ContinueWith((t) =>
-            {
-                powerShell.Dispose();
-
-                if (streamEncoding.invokeException != null)
-                {
-                    throw streamEncoding.invokeException;
-                }
-
-                if (t.IsFaulted)
-                {
-                    throw t.Exception; 
-                }
-            });
         }
 
         private void ContinueWith<T>(Task<T> task, HttpContext context, StreamEncoding streamEncoding, PSDataCollection<object> inputPipeline)

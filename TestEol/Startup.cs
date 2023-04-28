@@ -19,8 +19,10 @@
  *
  */
 
+using System;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using RhubarbGeekNz.AspNetForPowerShell;
@@ -33,8 +35,12 @@ namespace TestEol
         {
             var installer = InitialSessionState.CreateDefault();
 
-            installer.Commands.Add(new SessionStateCmdletEntry("New-PowerShellDelegate", typeof(NewPowerShellDelegate), null));
-            installer.Commands.Add(new SessionStateCmdletEntry("Set-PowerShellDelegate", typeof(SetPowerShellDelegate), null));
+            foreach (Type t in new Type[]{typeof(NewPowerShellDelegate), typeof(SetPowerShellDelegate)})
+            {
+                CmdletAttribute ca = t.GetCustomAttribute<CmdletAttribute>();
+
+                installer.Commands.Add(new SessionStateCmdletEntry($"{ca.VerbName}-{ca.NounName}", t, ca.HelpUri));
+            }
 
             using (PowerShell powerShell = PowerShell.Create(installer))
             {

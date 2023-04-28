@@ -32,4 +32,7 @@
       <AutoGen>True</AutoGen>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
 </Project>
