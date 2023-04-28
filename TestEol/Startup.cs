@@ -31,10 +31,6 @@ namespace TestEol
     {
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            var initialSessionState = InitialSessionState.CreateDefault();
-
-            initialSessionState.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
-
             var installer = InitialSessionState.CreateDefault();
 
             installer.Commands.Add(new SessionStateCmdletEntry("New-PowerShellDelegate", typeof(NewPowerShellDelegate), null));
@@ -42,7 +38,7 @@ namespace TestEol
 
             using (PowerShell powerShell = PowerShell.Create(installer))
             {
-                powerShell.AddScript(Resources.Startup).AddArgument(app).AddArgument(initialSessionState).AddArgument(Resources.Handler);
+                powerShell.AddScript(Resources.Startup).AddArgument(app).AddArgument(env).AddArgument(typeof(Resources));
 
                 powerShell.Invoke();
             }
