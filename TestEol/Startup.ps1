@@ -6,8 +6,8 @@ $var = New-Object -TypeName 'System.Management.Automation.Runspaces.SessionState
 
 $iss.Variables.Add($var)
 
-$handler = $res.GetProperty('Handler',40).GetValue($null)
+$script = $res.GetProperty('RequestDelegate',40).GetValue($null)
 
-$delegate = New-PowerShellDelegate $handler $iss
+$delegate = New-PowerShellDelegate $script $iss
 
 Set-PowerShellDelegate $app $delegate

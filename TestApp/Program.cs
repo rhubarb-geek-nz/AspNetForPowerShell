@@ -33,8 +33,8 @@ var iss = InitialSessionState.CreateDefault();
 
 iss.Variables.Add(new SessionStateVariableEntry("ContentRoot", env.ContentRootPath, "Content Root Path"));
 
-var handler = new PowerShellDelegate(Resources.Handler, iss).InvokeAsync;
+var requestDelegate = new PowerShellDelegate(Resources.RequestDelegate, iss).InvokeAsync;
 
-app.Run((x) => handler(x));
+app.Run((x) => requestDelegate(x));
 
 await app.RunAsync();

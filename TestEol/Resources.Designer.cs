@@ -84,9 +84,9 @@ namespace TestEol {
         ///            $response.ContentType = &apos;application/json&apos;
         ///            $PSVersionTable | Co [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string Handler {
+        internal static string RequestDelegate {
             get {
-                return ResourceManager.GetString("Handler", resourceCulture);
+                return ResourceManager.GetString("RequestDelegate", resourceCulture);
             }
         }
         
