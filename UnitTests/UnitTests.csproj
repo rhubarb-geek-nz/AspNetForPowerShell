@@ -28,4 +28,8 @@
     <ProjectReference Include="..\TestEol\TestEol.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <ProjectReference Include="..\TestPS1\TestPS1.csproj" />
+  </ItemGroup>
+
 </Project>

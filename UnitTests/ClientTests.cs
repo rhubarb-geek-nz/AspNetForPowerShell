@@ -112,7 +112,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public async Task GetWebRootPath()
+        public virtual async Task GetWebRootPath()
         {
             using var app = CreateWebClient();
             var env = app.Services.GetService<IWebHostEnvironment>();
