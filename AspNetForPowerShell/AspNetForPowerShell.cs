@@ -74,8 +74,7 @@ namespace RhubarbGeekNz.AspNetForPowerShell
         }
     }
 
-#if NETCOREAPP3_1 || NET5_0
-#else
+#if NET6_0_OR_GREATER
     [Cmdlet(VerbsCommon.New, "WebApplication")]
     [OutputType(typeof(WebApplication))]
     public class NewWebApplication : PSCmdlet
