@@ -21,6 +21,7 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
@@ -51,12 +52,12 @@ namespace RhubarbGeekNz.AspNetForPowerShell
         }
     }
 
-    [Cmdlet(VerbsCommon.Set, "PowerShellDelegate")]
-    public class SetPowerShellDelegate : PSCmdlet
+    [Cmdlet(VerbsCommon.Set, "WebApplication")]
+    public class SetWebApplication : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
-        public IApplicationBuilder ApplicationBuilder { get; set; }
-        [Parameter(Mandatory = true, Position = 1)]
+        public IApplicationBuilder WebApplication { get; set; }
+        [Parameter(Mandatory = true)]
         public RequestDelegate RequestDelegate { get; set; }
 
         protected override void BeginProcessing()
@@ -65,11 +66,36 @@ namespace RhubarbGeekNz.AspNetForPowerShell
 
         protected override void ProcessRecord()
         {
-            ApplicationBuilder.Run((x) => RequestDelegate(x));
+            WebApplication.Run((x) => RequestDelegate(x));
         }
 
         protected override void EndProcessing()
         {
         }
     }
+
+#if NETCOREAPP3_1 || NET5_0
+#else
+    [Cmdlet(VerbsCommon.New, "WebApplication")]
+    [OutputType(typeof(WebApplication))]
+    public class NewWebApplication : PSCmdlet
+    {
+        [Parameter(Mandatory = false, Position = 0)]
+        public string[] ArgumentList { get; set; }
+
+        protected override void BeginProcessing()
+        {
+        }
+
+        protected override void ProcessRecord()
+        {
+            WebApplication webApplication = WebApplication.Create(ArgumentList);
+            WriteObject(webApplication);
+        }
+
+        protected override void EndProcessing()
+        {
+        }
+    }
+#endif
 }
