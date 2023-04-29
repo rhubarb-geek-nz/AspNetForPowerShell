@@ -47,10 +47,7 @@ namespace TestEol
             {
                 powerShell.AddScript(Resources.Startup);
 
-                foreach (var arg in new object[]{app, env, log, typeof(Resources)})
-                {
-                    powerShell.AddArgument(arg);
-                }
+                powerShell.AddParameters(new object[] { app, env, log, typeof(Resources) });
 
                 powerShell.Invoke();
             }
