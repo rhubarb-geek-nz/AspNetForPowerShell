@@ -19,30 +19,16 @@
  *
  */
 
-using System.Reflection;
-
 namespace UnitTests
 {
 #if NET7_0_OR_GREATER
     [TestClass]
     public class TestPS1Tests : ClientTests
     {
-        protected override IWebClient CreateWebClient() => new TestPS1WebClient();
-
+        static readonly WebClientFactory webClientFactory = new WebClientFactory("TestPS1.dll");
+        protected override IWebClient CreateWebClient() => webClientFactory.Create();
         [Ignore]
         public override Task GetWebRootPath() => Task.CompletedTask;
     }
 #endif
-    class TestPS1WebClient : IWebClient
-    {
-        static readonly Assembly assemblyTestPS1 = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + "TestPS1.dll");
-        static readonly Type typeFactoryProgram = typeof(WebApplicationFactory<>).MakeGenericType(new [] { assemblyTestPS1.GetType("Program") });
-        static readonly PropertyInfo propertyServices = typeFactoryProgram.GetProperty("Services", typeof(IServiceProvider));
-        static readonly MethodInfo methodCreateClient = typeFactoryProgram.GetMethod("CreateClient", Array.Empty<Type>());
-
-        readonly IDisposable factory = (IDisposable)Activator.CreateInstance(typeFactoryProgram);
-        public IServiceProvider Services => (IServiceProvider)propertyServices.GetValue(factory);
-        public HttpClient CreateClient() => (HttpClient)methodCreateClient.Invoke(factory,null);
-        public void Dispose() => factory.Dispose();
-    }
 }
