@@ -23,12 +23,9 @@ using System.Management.Automation.Runspaces;
 using RhubarbGeekNz.AspNetForPowerShell;
 using TestApp;
 
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
-
+var app = WebApplication.Create(args);
 var env = app.Services.GetRequiredService<IWebHostEnvironment>();
 var logger = app.Services.GetRequiredService<ILogger<PowerShellDelegate>>();
-
 var iss = InitialSessionState.CreateDefault();
 
 iss.Variables.Add(new[]{

@@ -52,28 +52,6 @@ namespace RhubarbGeekNz.AspNetForPowerShell
         }
     }
 
-    [Cmdlet(VerbsCommon.Set, "WebApplication")]
-    public class SetWebApplication : PSCmdlet
-    {
-        [Parameter(Mandatory = true, Position = 0)]
-        public IApplicationBuilder WebApplication { get; set; }
-        [Parameter(Mandatory = true)]
-        public RequestDelegate RequestDelegate { get; set; }
-
-        protected override void BeginProcessing()
-        {
-        }
-
-        protected override void ProcessRecord()
-        {
-            WebApplication.Run((x) => RequestDelegate(x));
-        }
-
-        protected override void EndProcessing()
-        {
-        }
-    }
-
 #if NET6_0_OR_GREATER
     [Cmdlet(VerbsCommon.New, "WebApplication")]
     [OutputType(typeof(WebApplication))]

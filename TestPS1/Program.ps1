@@ -27,6 +27,6 @@ $script = $Resources.GetProperty('RequestDelegate',$bindingFlags).GetValue($null
 
 $delegate = New-PowerShellDelegate -Script $script -InitialSessionState $iss
 
-Set-WebApplication $app -RequestDelegate $delegate
+[Microsoft.AspNetCore.Builder.RunExtensions]::Run($app,$delegate)
 
 $app.Run()
