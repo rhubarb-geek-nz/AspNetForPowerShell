@@ -36,7 +36,7 @@ namespace TestEol
         {
             var installer = InitialSessionState.CreateDefault();
 
-            foreach (Type t in new Type[]{typeof(NewPowerShellDelegate), typeof(SetPowerShellDelegate)})
+            foreach (Type t in new Type[]{typeof(NewPowerShellDelegate), typeof(SetWebApplication) })
             {
                 CmdletAttribute ca = t.GetCustomAttribute<CmdletAttribute>();
 

@@ -1,5 +1,10 @@
 ﻿param($app,$env,$log,$res)
 
+trap
+{
+	throw $PSItem
+}
+
 $iss = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
 
 foreach ($var in
@@ -17,4 +22,4 @@ $script = $res.GetProperty('RequestDelegate',$bindingFlags).GetValue($null)
 
 $delegate = New-PowerShellDelegate -Script $script -InitialSessionState $iss
 
-Set-PowerShellDelegate -ApplicationBuilder $app -RequestDelegate $delegate
+Set-WebApplication $app -RequestDelegate $delegate
