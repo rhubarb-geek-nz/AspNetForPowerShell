@@ -129,6 +129,23 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public async Task GetLogger()
+        {
+            using var app = CreateWebClient();
+            var env = app.Services.GetService<IWebHostEnvironment>();
+            using var client = app.CreateClient();
+
+            var response = await client.GetAsync("/Logger");
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            Assert.AreEqual("text/plain", response.Content.Headers.ContentType.ToString());
+            Assert.AreEqual("ok", content);
+        }
+
+        [TestMethod]
         public async Task GetNotFound()
         {
             using var app = CreateWebClient();

@@ -24,16 +24,17 @@ using RhubarbGeekNz.AspNetForPowerShell;
 using TestApp;
 
 var builder = WebApplication.CreateBuilder(args);
-
 var app = builder.Build();
 
 var env = app.Services.GetRequiredService<IWebHostEnvironment>();
+var logger = app.Services.GetRequiredService<ILogger<PowerShellDelegate>>();
 
 var iss = InitialSessionState.CreateDefault();
 
 iss.Variables.Add(new[]{
     new SessionStateVariableEntry("ContentRootPath", env.ContentRootPath, "Content Root Path"),
-    new SessionStateVariableEntry("WebRootPath", env.WebRootPath, "Web Root Path")
+    new SessionStateVariableEntry("WebRootPath", env.WebRootPath, "Web Root Path"),
+    new SessionStateVariableEntry("Logger", logger, "Logger")
 });
 
 var requestDelegate = new PowerShellDelegate(Resources.RequestDelegate, iss).InvokeAsync;

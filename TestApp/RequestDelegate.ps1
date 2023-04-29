@@ -37,6 +37,11 @@ else
             $response.ContentType = 'text/plain'
             $WebRootPath
         }
+        '/Logger' {
+            $response.ContentType = 'text/plain'
+            $Logger.LogInformation('logger request',$null)
+            'ok'
+        }
         '/NotFound' {
             $response.StatusCode = 404
             $response.ContentType = 'text/plain'

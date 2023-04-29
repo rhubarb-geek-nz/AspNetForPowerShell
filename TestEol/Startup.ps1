@@ -2,7 +2,11 @@
 
 $iss = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
 
-foreach ($var in ('ContentRootPath',$env.ContentRootPath,'Content Root Path'),('WebRootPath',$env.WebRootPath,'Web Root Path'))
+foreach ($var in
+	('ContentRootPath',$env.ContentRootPath,'Content Root Path'),
+	('WebRootPath',$env.WebRootPath,'Web Root Path'),
+	('Logger',$Logger,'Logger')
+)
 {
 	$iss.Variables.Add((New-Object -TypeName 'System.Management.Automation.Runspaces.SessionStateVariableEntry' -ArgumentList $var))
 }

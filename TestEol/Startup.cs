@@ -25,13 +25,14 @@ using System.Management.Automation.Runspaces;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using RhubarbGeekNz.AspNetForPowerShell;
 
 namespace TestEol
 {
     public class Startup
     {
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<PowerShellDelegate> logger)
         {
             var installer = InitialSessionState.CreateDefault();
 
@@ -41,6 +42,8 @@ namespace TestEol
 
                 installer.Commands.Add(new SessionStateCmdletEntry($"{ca.VerbName}-{ca.NounName}", t, ca.HelpUri));
             }
+
+            installer.Variables.Add(new SessionStateVariableEntry("Logger", logger, "Logger"));
 
             using (PowerShell powerShell = PowerShell.Create(installer))
             {
