@@ -15,6 +15,6 @@ $bindingFlags = [int32][System.Reflection.BindingFlags]::Static + [int32][System
 
 $script = $res.GetProperty('RequestDelegate',$bindingFlags).GetValue($null)
 
-$delegate = New-PowerShellDelegate $script $iss
+$delegate = New-PowerShellDelegate -Script $script -InitialSessionState $iss
 
-Set-PowerShellDelegate $app $delegate
+Set-PowerShellDelegate -ApplicationBuilder $app -RequestDelegate $delegate
