@@ -39,7 +39,7 @@ else
         }
         '/Logger' {
             $response.ContentType = 'text/plain'
-            $Logger.LogInformation('logger request',$null)
+            [Microsoft.Extensions.Logging.LoggerExtensions]::LogInformation($Logger,'logger request',$null)
             'ok'
         }
         '/NotFound' {

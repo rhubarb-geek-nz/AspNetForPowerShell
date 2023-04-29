@@ -32,7 +32,7 @@ namespace TestEol
 {
     public class Startup
     {
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<PowerShellDelegate> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<PowerShellDelegate> log)
         {
             var installer = InitialSessionState.CreateDefault();
 
@@ -43,11 +43,14 @@ namespace TestEol
                 installer.Commands.Add(new SessionStateCmdletEntry($"{ca.VerbName}-{ca.NounName}", t, ca.HelpUri));
             }
 
-            installer.Variables.Add(new SessionStateVariableEntry("Logger", logger, "Logger"));
-
             using (PowerShell powerShell = PowerShell.Create(installer))
             {
-                powerShell.AddScript(Resources.Startup).AddArgument(app).AddArgument(env).AddArgument(typeof(Resources));
+                powerShell.AddScript(Resources.Startup);
+
+                foreach (var arg in new object[]{app, env, log, typeof(Resources)})
+                {
+                    powerShell.AddArgument(arg);
+                }
 
                 powerShell.Invoke();
             }
