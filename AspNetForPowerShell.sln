@@ -8,11 +8,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetForPowerShell", "AspN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEol", "TestEol\TestEol.csproj", "{2A01FE75-6348-42A6-8A5A-611DDDCD859F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{80287E39-0F40-42DB-82F3-17DE850EC366}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{80287E39-0F40-42DB-82F3-17DE850EC366}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerShellDelegate", "PowerShellDelegate\PowerShellDelegate.csproj", "{DB86CA41-EF9F-4536-9A7A-11B538B08D51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PowerShellDelegate", "PowerShellDelegate\PowerShellDelegate.csproj", "{DB86CA41-EF9F-4536-9A7A-11B538B08D51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPS1", "TestPS1\TestPS1.csproj", "{0028639E-1C3A-4148-A1C0-99E3A8EB87B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPS1", "TestPS1\TestPS1.csproj", "{0028639E-1C3A-4148-A1C0-99E3A8EB87B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -151,7 +151,7 @@ namespace UnitTests
             using var app = CreateWebClient();
             using var client = app.CreateClient();
 
-            var response = await client.GetAsync("/NotFound");
+            var response = await client.GetAsync("/favicon.ico");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
 

@@ -42,7 +42,7 @@ else
             [Microsoft.Extensions.Logging.LoggerExtensions]::LogInformation($Logger,'logger request',$null)
             'ok'
         }
-        '/NotFound' {
+        '/favicon.ico' {
             $response.StatusCode = 404
             $response.ContentType = 'text/plain'
             'not found'
