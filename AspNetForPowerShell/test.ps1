@@ -70,7 +70,7 @@ if ( -not $InPath )
 
 try
 {
-	$app = New-WebApplication -ArgumentList $args
+	$app = New-AspNetForPowerShellWebApplication -ArgumentList $args
 }
 finally
 {
@@ -83,7 +83,7 @@ finally
 $iss = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
 
 $env = $app.Services.GetService([Microsoft.AspNetCore.Hosting.IWebHostEnvironment])
-$log = $app.Services.GetService([Microsoft.Extensions.Logging.ILogger[RhubarbGeekNz.AspNetForPowerShell.NewPowerShellDelegate]])
+$log = $app.Services.GetService([Microsoft.Extensions.Logging.ILogger[RhubarbGeekNz.AspNetForPowerShell.NewRequestDelegate]])
 
 foreach ($var in
 	('ContentRootPath',$env.ContentRootPath,'Content Root Path'),
@@ -96,7 +96,7 @@ foreach ($var in
 
 $script = [string]$Content = [System.IO.File]::ReadAllText( ( $PSScriptRoot+$DSC+'..'+$DSC+'TestApp'+$DSC+'RequestDelegate.ps1') )
 
-$delegate = New-PowerShellDelegate -Script $script -InitialSessionState $iss
+$delegate = New-AspNetForPowerShellRequestDelegate -Script $script -InitialSessionState $iss
 
 [Microsoft.AspNetCore.Builder.RunExtensions]::Run($app,$delegate)
 

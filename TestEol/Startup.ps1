@@ -20,6 +20,6 @@ $bindingFlags = [int32][System.Reflection.BindingFlags]::Static + [int32][System
 
 $script = $res.GetProperty('RequestDelegate',$bindingFlags).GetValue($null)
 
-$delegate = New-PowerShellDelegate -Script $script -InitialSessionState $iss
+$delegate = New-AspNetForPowerShellRequestDelegate -Script $script -InitialSessionState $iss
 
 [Microsoft.AspNetCore.Builder.RunExtensions]::Run($app,$delegate)

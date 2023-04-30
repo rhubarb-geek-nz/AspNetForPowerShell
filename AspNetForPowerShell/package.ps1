@@ -128,11 +128,11 @@ if ( -not $PSV )
 	$PSV = $PowerShellVersion
 }
 
-$CmdletsToExport = "'New-PowerShellDelegate'"
+$CmdletsToExport = "'New-AspNetForPowerShellRequestDelegate'"
 
 if ([int32]$runtimeVer.Split('.')[0] -ge 6)
 {
-	$CmdletsToExport += ",'New-WebApplication'"
+	$CmdletsToExport += ",'New-AspNetForPowerShellWebApplication'"
 }
 
 @"

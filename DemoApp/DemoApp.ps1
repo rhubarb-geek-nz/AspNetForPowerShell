@@ -17,14 +17,13 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
-param($args)
 
 trap
 {
 	throw $PSItem
 }
 
-$Delegate = New-PowerShellDelegate -Script @'
+$Delegate = New-AspNetForPowerShellRequestDelegate -Script @'
 param($Context)
 $Response=$Context.Response
 $Response.StatusCode=200
@@ -32,7 +31,7 @@ $Response.ContentType='text/plain'
 'Hello World'
 '@
 
-$App = New-WebApplication -ArgumentList $args
+$App = [Microsoft.AspNetCore.Builder.WebApplication]::Create()
 $RouteBuilder = [Microsoft.AspNetCore.Routing.RouteBuilder]::new($App)
 [Void][Microsoft.AspNetCore.Routing.RequestDelegateRouteBuilderExtensions]::MapGet($RouteBuilder, "/", $Delegate)
 $RouteTable = $RouteBuilder.Build()

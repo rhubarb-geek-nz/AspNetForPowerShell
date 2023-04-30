@@ -21,15 +21,14 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
 namespace RhubarbGeekNz.AspNetForPowerShell
 {
-    [Cmdlet(VerbsCommon.New,"PowerShellDelegate")]
+    [Cmdlet(VerbsCommon.New,"AspNetForPowerShellRequestDelegate")]
     [OutputType(typeof(RequestDelegate))]
-    public class NewPowerShellDelegate : PSCmdlet
+    public class NewRequestDelegate : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
         public string Script { get; set; }
@@ -53,7 +52,7 @@ namespace RhubarbGeekNz.AspNetForPowerShell
     }
 
 #if NET6_0_OR_GREATER
-    [Cmdlet(VerbsCommon.New, "WebApplication")]
+    [Cmdlet(VerbsCommon.New, "AspNetForPowerShellWebApplication")]
     [OutputType(typeof(WebApplication))]
     public class NewWebApplication : PSCmdlet
     {

@@ -28,7 +28,7 @@ using TestPS1;
 var iss = InitialSessionState.CreateDefault();
 
 foreach (Type t in new Type[] {
-    typeof(NewPowerShellDelegate),
+    typeof(NewRequestDelegate),
     typeof(NewWebApplication) })
 {
     CmdletAttribute ca = t.GetCustomAttribute<CmdletAttribute>();
