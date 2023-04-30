@@ -28,8 +28,9 @@ trap
 
 $PSC = [System.IO.Path]::PathSeparator
 $DSC = [System.IO.Path]::DirectorySeparatorChar
+$OriginalPath = $Env:PSModulePath
 
-$configDir = ( (get-location).Path + $DSC + 'bin' + $DSC + $Configuration )
+$configDir = ( $PSScriptRoot + $DSC + 'bin' + $DSC + $Configuration )
 
 if ( -not $TargetFramework )
 {
@@ -67,7 +68,17 @@ if ( -not $InPath )
 	$Env:PSModulePath=($moduleDir + $PSC + $Env:PSModulePath)
 }
 
-$app = New-WebApplication -ArgumentList $args
+try
+{
+	$app = New-WebApplication -ArgumentList $args
+}
+finally
+{
+	if ( -not $InPath )
+	{
+		$Env:PSModulePath=$OriginalPath
+	}
+}
 
 $iss = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
 
@@ -83,7 +94,7 @@ foreach ($var in
 	$iss.Variables.Add((New-Object -TypeName 'System.Management.Automation.Runspaces.SessionStateVariableEntry' -ArgumentList $var))
 }
 
-$script = [string]$Content = [System.IO.File]::ReadAllText( ( '..'+$DSC+'TestApp'+$DSC+'RequestDelegate.ps1') )
+$script = [string]$Content = [System.IO.File]::ReadAllText( ( $PSScriptRoot+$DSC+'..'+$DSC+'TestApp'+$DSC+'RequestDelegate.ps1') )
 
 $delegate = New-PowerShellDelegate -Script $script -InitialSessionState $iss
 
