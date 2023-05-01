@@ -37,7 +37,7 @@
     <ProjectReference Include="..\PowerShellDelegate\PowerShellDelegate.csproj" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Release' ">
     <Exec Command="pwsh ./package.ps1 $(Configuration) $(TargetFramework)" />
   </Target>
 

@@ -31,7 +31,7 @@ $Response.ContentType='text/plain'
 'Hello World'
 '@
 
-$App = [Microsoft.AspNetCore.Builder.WebApplication]::Create()
+$App = New-AspNetForPowerShellWebApplication
 $RouteBuilder = [Microsoft.AspNetCore.Routing.RouteBuilder]::new($App)
 [Void][Microsoft.AspNetCore.Routing.RequestDelegateRouteBuilderExtensions]::MapGet($RouteBuilder, "/", $Delegate)
 $RouteTable = $RouteBuilder.Build()
