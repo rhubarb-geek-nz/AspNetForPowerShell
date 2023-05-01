@@ -106,17 +106,37 @@ else
 
 	if ( -not ( Test-Path $sdkDir ))
 	{
-		$null = New-Item -ItemType Directory -Path $sdkDir
+		try
+		{
+			$null = New-Item -ItemType Directory -Path $sdkDir
 
-		if ($IsWindows)
-		{
-			Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile "$ObjDir/dotnet-install.ps1"
-			pwsh "$ObjDir/dotnet-install.ps1" -InstallDir $sdkDir -Runtime 'aspnetcore' -Channel $Channel -Version $Version
+			if ($IsWindows)
+			{
+				Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile "$ObjDir/dotnet-install.ps1"
+				pwsh "$ObjDir/dotnet-install.ps1" -InstallDir $sdkDir -Runtime 'aspnetcore' -Channel $Channel -Version $Version
+			}
+			else
+			{
+				Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.sh' -OutFile "$ObjDir/dotnet-install.sh"
+				bash $ObjDir/dotnet-install.sh --install-dir $sdkDir --runtime aspnetcore --channel $Channel --version $Version
+			}
+
+			If ( $LastExitCode -ne 0 )
+			{
+				throw "dotnet-install error $LastExitCode"
+			}
 		}
-		else
+		catch
 		{
-			Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.sh' -OutFile "$ObjDir/dotnet-install.sh"
-			bash $ObjDir/dotnet-install.sh --install-dir $sdkDir --runtime aspnetcore --channel $Channel --version $Version
+			Remove-Item -LiteralPath $sdkDir -Force -Recursive
+			foreach ($p in "$ObjDir/dotnet-install.ps1","$ObjDir/dotnet-install.sh")
+			{
+				if ( Test-Path $p )
+				{
+					Remove-Item -LiteralPath $p
+				}
+			}
+			throw
 		}
 	}
 }
@@ -213,6 +233,13 @@ finally
 
 if ($IsLinux)
 {
-	./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel all
-	./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel native
+	foreach ($Arch in 'all','native')
+	{
+		./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel $Arch
+
+		If ( $LastExitCode -ne 0 )
+		{
+			throw "./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel $Arch error $LastExitCode"
+		}
+	}
 }
