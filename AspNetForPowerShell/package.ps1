@@ -213,5 +213,6 @@ finally
 
 if ($IsLinux)
 {
-	./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel
+	./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel all
+	./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel native
 }

@@ -23,11 +23,12 @@ Version="$3"
 PowerShellSdkVer="$4"
 ModuleId="$5"
 Channel="$6"
+Arch="$7"
 BinDir="bin/$Configuration/$TargetFramework"
 ObjDir="obj/$Configuration/$TargetFramework"
 SdkDir="$ObjDir/sdk-$Version"
 DebianDir="$BinDir/debian"
-
+IsNative=true
 IsNotDebian=true
 
 for d in $( . /etc/os-release ; echo $ID $ID_LIKE )
@@ -46,13 +47,21 @@ then
 	exit 0
 fi
 
+case "$Arch" in
+	all )
+		IsNative=false
+		;;
+	* )
+		Arch=$(dpkg --print-architecture)
+		;;
+esac
+
 case $PowerShellSdkVer in
 	7.0.* | 7.1.* )
 		PowerShellSuffix=$( . /etc/os-release ; echo $ID.$VERSION_ID )
 		;;
 	* )
 		PowerShellSuffix=1.deb
-
 		;;
 esac
 
@@ -69,20 +78,32 @@ mkdir -p "$DebianDir/control"
 
 echo 2.0 > "$DebianDir/debian-binary"
 
-cp "$BinDir"/*.dll "$BinDir/$ModuleId/$ModuleId.psd1" "$DebianDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
+if $IsNative
+then
+	cp -R "$BinDir/$ModuleId/"* "$DebianDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
+else
+	cp "$BinDir"/*.dll "$BinDir/$ModuleId/$ModuleId.psd1" "$DebianDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
 
-(
-	set -e
-	cd "$SdkDir/shared/Microsoft.AspNetCore.App/$Version"
-	find * | grep -v "/"
-) | (
-	set -e
-	cd "$DebianDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
-	while read N
-	do
-		ln -s "/usr/share/dotnet/shared/Microsoft.AspNetCore.App/$Version/$N" "$N"
-	done
-)
+	(
+		set -e
+		cd "$SdkDir/shared/Microsoft.AspNetCore.App/$Version"
+		find * | grep -v "/"
+	) | (
+		set -e
+		cd "$DebianDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
+		while read N
+		do
+			ln -s "/usr/share/dotnet/shared/Microsoft.AspNetCore.App/$Version/$N" "$N"
+		done
+	)
+fi
+
+if $IsNative
+then
+	Depends="powershell (=$PowerShellSdkVer-$PowerShellSuffix)"
+else
+	Depends="powershell (=$PowerShellSdkVer-$PowerShellSuffix), aspnetcore-runtime-$Channel (=$Version-1)"
+fi
 
 InstalledSize=$(du -sk "$DebianDir/data")
 InstalledSize=$(for d in $InstalledSize; do echo $d; break; done)
@@ -90,8 +111,8 @@ PackageName=rhubarb-geek-nz-aspnetforpowershell
 cat > "$DebianDir/control/control" <<EOF
 Package: $PackageName
 Version: $PowerShellSdkVer-$PowerShellSuffix
-Architecture: all
-Depends: powershell (=$PowerShellSdkVer-$PowerShellSuffix), aspnetcore-runtime-$Channel (=$Version-1)
+Architecture: $Arch
+Depends: $Depends
 Section: devel
 Priority: standard
 Installed-Size: $InstalledSize
@@ -117,7 +138,7 @@ EOF
 		tar --owner=0 --group=0 --gzip --create --file - "opt/microsoft/powershell/7/Modules/$ModuleId"
 	) > data.tar.gz
 
-	ar r "$PackageName"_"$PowerShellSdkVer-$PowerShellSuffix"_all.deb debian-binary control.tar.* data.tar.*	
+	ar r "$PackageName"_"$PowerShellSdkVer-$PowerShellSuffix"_"$Arch".deb debian-binary control.tar.* data.tar.*
 )
 
 mv "$DebianDir"/*.deb "$BinDir"
