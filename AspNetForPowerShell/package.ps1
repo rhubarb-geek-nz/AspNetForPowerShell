@@ -25,7 +25,6 @@ $CompanyName = 'rhubarb-geek-nz'
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 $compatiblePSEdition = 'Core'
-$PowerShellVersion = $Host.Version.ToString()
 $DSC = [System.IO.Path]::DirectorySeparatorChar
 $ObjDir = ( 'obj'+$DSC+$Configuration+$DSC+$TargetFramework )
 $BinDir = ( 'bin'+$DSC+$Configuration+$DSC+$TargetFramework )
@@ -37,21 +36,13 @@ trap
 
 $xmlDoc = [System.Xml.XmlDocument](Get-Content "$ModuleName.nuspec")
 
-$Version = $xmlDoc.SelectSingleNode("/package/metadata/version").FirstChild.Value
 $ModuleId = $xmlDoc.SelectSingleNode("/package/metadata/id").FirstChild.Value
 $ProjectUri = $xmlDoc.SelectSingleNode("/package/metadata/projectUrl").FirstChild.Value
 $Description = $xmlDoc.SelectSingleNode("/package/metadata/description").FirstChild.Value
 $Author = $xmlDoc.SelectSingleNode("/package/metadata/authors").FirstChild.Value
 $Copyright = $xmlDoc.SelectSingleNode("/package/metadata/copyright").FirstChild.Value
 
-$PSVersions = @{
-	'netcoreapp3.1' = '7.0';
-	'net5.0' = '7.1';
-	'net6.0' = '7.2';
-	'net7.0' = '7.3'
-}
-
-$SDKVersions = @{
+$SDKChannels = @{
 	'netcoreapp3.1' = '3.1';
 	'net5.0' = '5.0';
 	'net6.0' = '6.0';
@@ -79,6 +70,11 @@ foreach ($Node in $PackageReferences)
 	}
 }
 
+if ( -not $Version )
+{
+	throw new "Unable to determine AspNetCore runtime version"
+}
+
 $ModulePath = ( $BinDir + $DSC + $ModuleId )
 
 if ( Test-Path $ModulePath )
@@ -94,7 +90,7 @@ Get-ChildItem -LiteralPath $binDir -Filter '*.dll' | ForEach-Object {
 	$_ | Copy-Item -Destination $ModulePath
 }
 
-$Channel = $SDKVersions[$TargetFramework]
+$Channel = $SDKChannels[$TargetFramework]
 
 if ($IsMacOs)
 {
@@ -152,13 +148,6 @@ Get-ChildItem -LiteralPath $runtimeDir -Filter '*.dll' | Copy-Item -Destination 
 
 Copy-Item -LiteralPath ( '..'+$DSC+'README.md' ) -Destination $ModulePath
 
-$PSV = $PSVersions[$TargetFramework]
-
-if ( -not $PSV )
-{
-	$PSV = $PowerShellVersion
-}
-
 $CmdletsToExport = "'New-AspNetForPowerShellRequestDelegate'"
 
 if ([int32]$Version.Split('.')[0] -ge 6)
@@ -174,7 +163,7 @@ if ([int32]$Version.Split('.')[0] -ge 6)
 	Author = '$Author'
 	CompanyName = '$CompanyName'
 	Copyright = '$Copyright'
-	PowerShellVersion = '$PSV'
+	PowerShellVersion = '$PowerShellSdkVersion'
 	CompatiblePSEditions = @('$compatiblePSEdition')
 	Description = '$Description'
 	FunctionsToExport = @()
@@ -188,7 +177,7 @@ if ([int32]$Version.Split('.')[0] -ge 6)
 	}
 }
 "@ | ForEach-Object {
-				$_.Replace('VERSION_PLACEHOLDER',$Version)
+				$_.Replace('VERSION_PLACEHOLDER',$PowerShellSdkVersion)
 } | Set-Content -Path "$ModulePath/$ModuleId.psd1"
 
 $nuget = $false
@@ -208,7 +197,7 @@ try
 	if ( $nuget )
 	{
 		Get-Content "$ModuleName.nuspec" | ForEach-Object {
-			$_.Replace('VERSION_PLACEHOLDER',$Version)
+			$_.Replace('VERSION_PLACEHOLDER',$PowerShellSdkVersion)
 		} | Set-Content -Path ( "$BinDir"+$DSC+"$ModuleName.nuspec")
 		Set-Location $BinDir
 		nuget pack "$ModuleName.nuspec"
@@ -218,12 +207,12 @@ try
 	{
 		Set-Location $BinDir
 
-		if ( Test-Path "$moduleId-$Version.zip")
+		if ( Test-Path "$moduleId-$PowerShellSdkVersion.zip")
 		{
-			Remove-Item "$moduleId-$Version.zip"
+			Remove-Item "$moduleId-$PowerShellSdkVersion.zip"
 		}
 
-		Compress-Archive -LiteralPath $moduleId -DestinationPath "$moduleId-$Version.zip"
+		Compress-Archive -LiteralPath $moduleId -DestinationPath "$moduleId-$PowerShellSdkVersion.zip"
 	}
 }
 finally
