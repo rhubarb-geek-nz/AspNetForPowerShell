@@ -8,7 +8,7 @@
     <license type="expression">LGPL-3.0-or-later</license>
     <readme>README.md</readme>
     <projectUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell</projectUrl>
-    <description>AspNetCore VERSION_PLACEHOLDER for PowerShell</description>
+    <description>AspNetCore for PowerShell VERSION_PLACEHOLDER</description>
     <releaseNotes>NuGet package for AspNetCore</releaseNotes>
     <copyright>2023</copyright>
     <tags>AspNetForPowerShell</tags>
