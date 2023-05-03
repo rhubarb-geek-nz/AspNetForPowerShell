@@ -177,7 +177,7 @@ if ([int32]$Version.Split('.')[0] -ge 6)
 @"
 @{
 	RootModule = 'RhubarbGeekNz.$ModuleName.dll'
-	ModuleVersion = '$Version'
+	ModuleVersion = '$PowerShellSdkVersion'
 	GUID = '59727163-f9c0-447d-9176-fc455fe932ef'
 	Author = '$Author'
 	CompanyName = '$CompanyName'
