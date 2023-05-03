@@ -17,7 +17,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
-param($Configuration='Release',$TargetFramework=$null)
+param($Configuration='Release',$TargetFramework=$null,$Platform=$null)
 
 $args = $null
 
@@ -29,8 +29,19 @@ trap
 $PSC = [System.IO.Path]::PathSeparator
 $DSC = [System.IO.Path]::DirectorySeparatorChar
 $OriginalPath = $Env:PSModulePath
+$RID = [System.Runtime.InteropServices.RuntimeInformation]::RuntimeIdentifier
 
-$configDir = ( $PSScriptRoot + $DSC + 'bin' + $DSC + $Configuration )
+if ( -not $Platform )
+{
+	$Platform = $RID.Split('-')[1]
+}
+
+$configDir = ( $PSScriptRoot + $DSC + 'bin' + $DSC + $Platform + $DSC + $Configuration )
+
+if ( -not ( Test-Path $configDir ) )
+{
+	throw "directory $configDir not found"
+}
 
 if ( -not $TargetFramework )
 {
@@ -47,7 +58,7 @@ if ( -not $TargetFramework )
 
 	if ( -not $TargetFramework )
 	{
-		throw "no matching framework for dotnet $Major.$Minor"
+		throw "no matching framework for dotnet $Major.$Minor in $configDir"
 	}
 }
 

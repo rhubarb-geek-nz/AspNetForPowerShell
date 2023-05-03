@@ -4,6 +4,7 @@
     <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">

@@ -17,7 +17,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
-param($Configuration,$TargetFramework)
+param($Configuration,$TargetFramework,$Platform,$IntDir,$OutDir,$TargetDir)
 
 $ModuleName = 'AspNetForPowerShell'
 $CompanyName = 'rhubarb-geek-nz'
@@ -26,12 +26,20 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 $compatiblePSEdition = 'Core'
 $DSC = [System.IO.Path]::DirectorySeparatorChar
-$ObjDir = ( 'obj'+$DSC+$Configuration+$DSC+$TargetFramework )
-$BinDir = ( 'bin'+$DSC+$Configuration+$DSC+$TargetFramework )
 
 trap
 {
 	throw $PSItem
+}
+
+if ( -not ( Test-Path $IntDir ))
+{
+	throw "$IntDir not found"
+}
+
+if ( -not ( Test-Path $OutDir ))
+{
+	throw "$OutDir not found"
 }
 
 $xmlDoc = [System.Xml.XmlDocument](Get-Content "$ModuleName.nuspec")
@@ -75,7 +83,7 @@ if ( -not $Version )
 	throw new "Unable to determine AspNetCore runtime version"
 }
 
-$ModulePath = ( $BinDir + $DSC + $ModuleId )
+$ModulePath = ( $OutDir + $ModuleId )
 
 if ( Test-Path $ModulePath )
 {
@@ -84,7 +92,7 @@ if ( Test-Path $ModulePath )
 
 $null = New-Item -ItemType Directory -Path $ModulePath
 
-Get-ChildItem -LiteralPath $binDir -Filter '*.dll' | ForEach-Object {
+Get-ChildItem -LiteralPath $OutDir -Filter '*.dll' | ForEach-Object {
 	$Name = $_.Name
 
 	$_ | Copy-Item -Destination $ModulePath
@@ -98,7 +106,7 @@ if ($IsMacOs)
 }
 else
 {
-	$sdkDir = ($ObjDir+$DSC+"sdk-$Version")
+	$sdkDir = ($IntDir+"sdk-$Version")
 
 	if ( -not ( Test-Path $sdkDir ))
 	{
@@ -106,15 +114,23 @@ else
 		{
 			$null = New-Item -ItemType Directory -Path $sdkDir
 
+			$Architecture = $Platform
+
+			switch ( $Architecture )
+			{
+				'AnyCPU' { $Architecture = '<auto>' }
+				'arm32' { $Architecture = 'arm' }
+			}
+
 			if ($IsWindows)
 			{
-				Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile "$ObjDir/dotnet-install.ps1"
-				pwsh "$ObjDir/dotnet-install.ps1" -InstallDir $sdkDir -Runtime 'aspnetcore' -Channel $Channel -Version $Version
+				Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile ( "$IntDir"+"dotnet-install.ps1" )
+				pwsh "$IntDir/dotnet-install.ps1" -InstallDir $sdkDir -Runtime 'aspnetcore' -Channel $Channel -Version $Version -Architecture $Architecture
 			}
 			else
 			{
-				Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.sh' -OutFile "$ObjDir/dotnet-install.sh"
-				bash $ObjDir/dotnet-install.sh --install-dir $sdkDir --runtime aspnetcore --channel $Channel --version $Version
+				Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.sh' -OutFile ( "$IntDir"+"dotnet-install.sh" )
+				bash $IntDir/dotnet-install.sh --install-dir $sdkDir --runtime aspnetcore --channel $Channel --version $Version --architecture "$Architecture"
 			}
 
 			If ( $LastExitCode -ne 0 )
@@ -125,7 +141,7 @@ else
 		catch
 		{
 			Remove-Item -LiteralPath $sdkDir -Force -Recursive
-			foreach ($p in "$ObjDir/dotnet-install.ps1","$ObjDir/dotnet-install.sh")
+			foreach ($p in ("$IntDir"+"dotnet-install.ps1"),("$IntDir"+"dotnet-install.sh"))
 			{
 				if ( Test-Path $p )
 				{
@@ -137,14 +153,17 @@ else
 	}
 }
 
-$runtimeDir = ($sdkDir+$DSC+'shared'+$DSC+'Microsoft.AspNetCore.App'+$DSC+$Version)
+$RuntimeDir = ($sdkDir+$DSC+'shared'+$DSC+'Microsoft.AspNetCore.App'+$DSC+$Version)
 
-if ( -not ( Test-Path $runtimeDir ) )
+if ( -not ( Test-Path $RuntimeDir ) )
 {
 	throw "Runtime $Version not found for $Channel for $TargetFramework"
 }
 
-Get-ChildItem -LiteralPath $runtimeDir -Filter '*.dll' | Copy-Item -Destination $ModulePath
+if ($Platform -ne 'AnyCPU')
+{
+	Get-ChildItem -LiteralPath $RuntimeDir -Filter '*.dll' | Copy-Item -Destination $ModulePath
+}
 
 Copy-Item -LiteralPath ( '..'+$DSC+'README.md' ) -Destination $ModulePath
 
@@ -198,14 +217,14 @@ try
 	{
 		Get-Content "$ModuleName.nuspec" | ForEach-Object {
 			$_.Replace('VERSION_PLACEHOLDER',$PowerShellSdkVersion)
-		} | Set-Content -Path ( "$BinDir"+$DSC+"$ModuleName.nuspec")
-		Set-Location $BinDir
+		} | Set-Content -Path ( "$OutDir"+"$ModuleName.nuspec")
+		Set-Location $OutDir
 		nuget pack "$ModuleName.nuspec"
 		Remove-Item -LiteralPath "$ModuleName.nuspec"
 	}
 	else
 	{
-		Set-Location $BinDir
+		Set-Location $OutDir
 
 		if ( Test-Path "$moduleId-$PowerShellSdkVersion.zip")
 		{
@@ -222,13 +241,10 @@ finally
 
 if ($IsLinux)
 {
-	foreach ($Arch in 'all','native')
-	{
-		./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel $Arch
+	./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel $Platform $OutDir $RuntimeDir
 
-		If ( $LastExitCode -ne 0 )
-		{
-			throw "./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel $Arch error $LastExitCode"
-		}
+	If ( $LastExitCode -ne 0 )
+	{
+		throw "./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel $Platform error $LastExitCode"
 	}
 }

@@ -23,92 +23,160 @@ Version="$3"
 PowerShellSdkVer="$4"
 ModuleId="$5"
 Channel="$6"
-Arch="$7"
-BinDir="bin/$Configuration/$TargetFramework"
-ObjDir="obj/$Configuration/$TargetFramework"
-SdkDir="$ObjDir/sdk-$Version"
-DebianDir="$BinDir/debian"
-IsNative=true
-IsNotDebian=true
+Platform="$7"
+OutDir="$8"
+RuntimeDir="$9"
+
+LinuxDir="$OutDir"linux
+IsAnyCPU=false
+IsDebian=false
+IsRpm=false
+PowerShellSuffix=1
+PowerShellDependsDotnetRuntime=false
 
 for d in $( . /etc/os-release ; echo $ID $ID_LIKE )
 do
 	case "$d" in
 		debian )
-			IsNotDebian=false
+			IsDebian=true
+			PowerShellSuffix=1.deb
+			;;
+		fedora | rhel )
+			IsRpm=true
+			PowerShellSuffix=1.rh
+			;;
+		mariner )
+			IsRpm=true
+			PowerShellSuffix=1.cm
 			;;
 		* )
 			;;
 	esac
 done
 
-if $IsNotDebian
+if $IsRpm
 then
-	exit 0
+	if ( rpm -qR powershell | grep "^dotnet-runtime-" )
+	then
+		PowerShellDependsDotnetRuntime=true
+	fi
 fi
 
-case "$Arch" in
-	all )
-		IsNative=false
+case "$Platform" in
+	"AnyCPU" )
+		IsAnyCPU=true
+		if $IsDebian
+		then
+			Arch="all"
+		else
+			Arch="any"
+		fi
+		;;
+	"arm64" )
+		if $IsDebian
+		then
+			Arch="arm64"
+		else
+			Arch="aarch64"
+		fi
+		;;
+	"arm32" | "arm" )
+		if $IsDebian
+		then
+			Arch="armhf"
+		else
+			Arch="armhfp"
+		fi
+		;;
+	"x64" )
+		if $IsDebian
+		then
+			Arch="amd64"
+		else
+			Arch="x86_64"
+		fi
+		;;
+	"x86" )
+		Arch="i386"
 		;;
 	* )
-		Arch=$(dpkg --print-architecture)
+		if $IsDebian
+		then
+			Arch=$(dpkg --print-architecture)
+		else
+			Arch=$(arch)
+		fi
 		;;
 esac
 
 case $PowerShellSdkVer in
 	7.0.* | 7.1.* )
-		PowerShellSuffix=$( . /etc/os-release ; echo $ID.$VERSION_ID )
+		PowerShellSuffix=$( . /etc/os-release ; echo 1.$ID.$VERSION_ID )
 		;;
 	* )
-		PowerShellSuffix=1.deb
 		;;
 esac
 
 cleanup()
 {
-	chmod -R +w "$DebianDir"
-	rm -rf "$DebianDir"
+	chmod -R +w "$LinuxDir"
+	rm -rf "$LinuxDir"
 }
 
 trap cleanup 0
 
-mkdir -p "$DebianDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
-mkdir -p "$DebianDir/control"
+mkdir -p "$LinuxDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
+mkdir -p "$LinuxDir/control"
 
-echo 2.0 > "$DebianDir/debian-binary"
+echo 2.0 > "$LinuxDir/debian-binary"
 
-if $IsNative
+if $PowerShellDependsDotnetRuntime
 then
-	cp -R "$BinDir/$ModuleId/"* "$DebianDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
+	for d in "$OutDir$ModuleId/"*
+	do
+		N=$(basename "$d")
+		if test ! -e "$RuntimeDir/$N"
+		then
+			cp "$d" "$LinuxDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
+		fi
+	done
 else
-	cp "$BinDir"/*.dll "$BinDir/$ModuleId/$ModuleId.psd1" "$DebianDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
+	cp -R "$OutDir$ModuleId/"* "$LinuxDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
 
-	(
-		set -e
-		cd "$SdkDir/shared/Microsoft.AspNetCore.App/$Version"
-		find * | grep -v "/"
-	) | (
-		set -e
-		cd "$DebianDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
-		while read N
-		do
-			ln -s "/usr/share/dotnet/shared/Microsoft.AspNetCore.App/$Version/$N" "$N"
-		done
-	)
+	if $IsAnyCPU
+	then
+		(
+			set -e
+			cd "$RuntimeDir"
+			for d in *
+			do
+				echo "$d"
+			done
+		) | (
+			set -e
+			cd "$LinuxDir/data/opt/microsoft/powershell/7/Modules/$ModuleId"
+			while read N
+			do
+				ln -s "/usr/share/dotnet/shared/Microsoft.AspNetCore.App/$Version/$N" "$N"
+			done
+		)
+	fi
 fi
 
-if $IsNative
+if $IsDebian
 then
-	Depends="powershell (=$PowerShellSdkVer-$PowerShellSuffix)"
-else
-	Depends="powershell (=$PowerShellSdkVer-$PowerShellSuffix), aspnetcore-runtime-$Channel (=$Version-1)"
-fi
+	if $IsAnyCPU
+	then
+		Depends="powershell (=$PowerShellSdkVer-$PowerShellSuffix), aspnetcore-runtime-$Channel (=$Version-1)"
+	else
+		Depends="powershell (=$PowerShellSdkVer-$PowerShellSuffix)"
+	fi
 
-InstalledSize=$(du -sk "$DebianDir/data")
-InstalledSize=$(for d in $InstalledSize; do echo $d; break; done)
-PackageName=rhubarb-geek-nz-aspnetforpowershell
-cat > "$DebianDir/control/control" <<EOF
+	InstalledSize=$(du -sk "$LinuxDir/data")
+	InstalledSize=$(for d in $InstalledSize; do echo $d; break; done)
+	PackageName=rhubarb-geek-nz-aspnetforpowershell
+
+	cat > "$LinuxDir/control/control" <<EOF
 Package: $PackageName
 Version: $PowerShellSdkVer-$PowerShellSuffix
 Architecture: $Arch
@@ -117,28 +185,21 @@ Section: devel
 Priority: standard
 Installed-Size: $InstalledSize
 Maintainer: rhubarb-geek-nz@users.sourceforge.net
-Description: AspNetCore For PowerShell
+Description: AspNetCore For PowerShell $PowerShellSdkVer
 EOF
 
-(
-	set -e
-	cd "$DebianDir"
+	(
+		set -e
+		cd "$LinuxDir"
 
-	chmod -R -w data control debian-binary
+		chmod -R -w data control debian-binary
 	
-	(
-		set -e
-		cd control
-		tar --owner=0 --group=0 --gzip --create --file - control
-	) > control.tar.gz
+		tar --owner=0 --group=0 --gzip --create --file control.tar.gz -C control control
 
-	(
-		set -e
-		cd data
-		tar --owner=0 --group=0 --gzip --create --file - "opt/microsoft/powershell/7/Modules/$ModuleId"
-	) > data.tar.gz
+		tar --owner=0 --group=0 --gzip --create --file data.tar.gz -C data  "opt/microsoft/powershell/7/Modules/$ModuleId"
 
-	ar r "$PackageName"_"$PowerShellSdkVer-$PowerShellSuffix"_"$Arch".deb debian-binary control.tar.* data.tar.*
-)
+		ar r "$PackageName"_"$PowerShellSdkVer-$PowerShellSuffix"_"$Arch".deb debian-binary control.tar.* data.tar.*
+	)
 
-mv "$DebianDir"/*.deb "$BinDir"
+	mv "$LinuxDir"/*.deb "$OutDir"
+fi

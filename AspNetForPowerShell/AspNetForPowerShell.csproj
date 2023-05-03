@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
     <AssemblyName>RhubarbGeekNz.AspNetForPowerShell</AssemblyName>
+    <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,7 +39,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="pwsh ./package.ps1 $(Configuration) $(TargetFramework)" />
+    <Exec Command="pwsh ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(TargetDir)" />
   </Target>
 
 </Project>

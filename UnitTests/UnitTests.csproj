@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
 
     <IsPackable>false</IsPackable>
+
+    <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
