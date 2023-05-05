@@ -62,7 +62,7 @@ $xmlDoc = [System.Xml.XmlDocument](Get-Content "$ModuleName.csproj")
 $PackageReferences = $xmlDoc.SelectNodes("/Project/ItemGroup/PackageReference[@Include = 'Microsoft.PowerShell.SDK']")
 
 $PowerShellSdkVersion = $null
-$Version = $null
+$RuntimeVersion = $null
 
 foreach ($Node in $PackageReferences)
 {
@@ -74,11 +74,11 @@ foreach ($Node in $PackageReferences)
 
 		$config = Import-PowerShellDataFile 'package.psd1'
 
-		$Version = $config[$TargetFramework][$PowerShellSdkVersion]
+		$RuntimeVersion = $config[$TargetFramework][$PowerShellSdkVersion]
 	}
 }
 
-if ( -not $Version )
+if ( -not $RuntimeVersion )
 {
 	throw new "Unable to determine AspNetCore runtime version"
 }
@@ -100,76 +100,11 @@ Get-ChildItem -LiteralPath $OutDir -Filter '*.dll' | ForEach-Object {
 
 $Channel = $SDKChannels[$TargetFramework]
 
-if ($IsMacOs)
-{
-	$sdkDir = '/usr/local/share/dotnet'
-}
-else
-{
-	$sdkDir = ($IntDir+"sdk-$Version")
-
-	if ( -not ( Test-Path $sdkDir ))
-	{
-		try
-		{
-			$null = New-Item -ItemType Directory -Path $sdkDir
-
-			$Architecture = $Platform
-
-			switch ( $Architecture )
-			{
-				'AnyCPU' { $Architecture = '<auto>' }
-				'arm32' { $Architecture = 'arm' }
-			}
-
-			if ($IsWindows)
-			{
-				Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile ( "$IntDir"+"dotnet-install.ps1" )
-				pwsh "$IntDir/dotnet-install.ps1" -InstallDir $sdkDir -Runtime 'aspnetcore' -Channel $Channel -Version $Version -Architecture $Architecture
-			}
-			else
-			{
-				Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.sh' -OutFile ( "$IntDir"+"dotnet-install.sh" )
-				bash $IntDir/dotnet-install.sh --install-dir $sdkDir --runtime aspnetcore --channel $Channel --version $Version --architecture "$Architecture"
-			}
-
-			If ( $LastExitCode -ne 0 )
-			{
-				throw "dotnet-install error $LastExitCode"
-			}
-		}
-		catch
-		{
-			Remove-Item -LiteralPath $sdkDir -Force -Recursive
-			foreach ($p in ("$IntDir"+"dotnet-install.ps1"),("$IntDir"+"dotnet-install.sh"))
-			{
-				if ( Test-Path $p )
-				{
-					Remove-Item -LiteralPath $p
-				}
-			}
-			throw
-		}
-	}
-}
-
-$RuntimeDir = ($sdkDir+$DSC+'shared'+$DSC+'Microsoft.AspNetCore.App'+$DSC+$Version)
-
-if ( -not ( Test-Path $RuntimeDir ) )
-{
-	throw "Runtime $Version not found for $Channel for $TargetFramework"
-}
-
-if ($Platform -ne 'AnyCPU')
-{
-	Get-ChildItem -LiteralPath $RuntimeDir -Filter '*.dll' | Copy-Item -Destination $ModulePath
-}
-
 Copy-Item -LiteralPath ( '..'+$DSC+'README.md' ) -Destination $ModulePath
 
 $CmdletsToExport = "'New-AspNetForPowerShellRequestDelegate'"
 
-if ([int32]$Version.Split('.')[0] -ge 6)
+if ([int32]$RuntimeVersion.Split('.')[0] -ge 6)
 {
 	$CmdletsToExport += ",'New-AspNetForPowerShellWebApplication'"
 }
@@ -199,52 +134,78 @@ if ([int32]$Version.Split('.')[0] -ge 6)
 				$_.Replace('VERSION_PLACEHOLDER',$PowerShellSdkVersion)
 } | Set-Content -Path "$ModulePath/$ModuleId.psd1"
 
+Push-Location $OutDir
+
+try
+{
+		$ZipName = "$moduleId.$PowerShellSdkVersion.zip"
+
+		if ( Test-Path $ZipName)
+		{
+			Remove-Item $ZipName
+		}
+
+		Compress-Archive -LiteralPath $moduleId -DestinationPath $ZipName
+}
+finally
+{
+	Pop-Location
+}
+
 $nuget = $false
 
 try
 {
-	$nuget = Get-Command 'nuget'
+	$hasNuget = Get-Command 'nuget'
 }
 catch
 {
 }
 
-$loc = Get-Location
-
-try
+if ( $hasNuget )
 {
-	if ( $nuget )
+	Get-Content "$ModuleName.nuspec" | ForEach-Object {
+		$_.Replace('VERSION_PLACEHOLDER',$PowerShellSdkVersion)
+	} | Set-Content -Path ( "$OutDir"+"$ModuleName.nuspec")
+
+	try
 	{
-		Get-Content "$ModuleName.nuspec" | ForEach-Object {
-			$_.Replace('VERSION_PLACEHOLDER',$PowerShellSdkVersion)
-		} | Set-Content -Path ( "$OutDir"+"$ModuleName.nuspec")
-		Set-Location $OutDir
+		Push-Location $OutDir
 		nuget pack "$ModuleName.nuspec"
 		Remove-Item -LiteralPath "$ModuleName.nuspec"
 	}
-	else
+	finally
 	{
-		Set-Location $OutDir
-
-		if ( Test-Path "$moduleId-$PowerShellSdkVersion.zip")
-		{
-			Remove-Item "$moduleId-$PowerShellSdkVersion.zip"
-		}
-
-		Compress-Archive -LiteralPath $moduleId -DestinationPath "$moduleId-$PowerShellSdkVersion.zip"
+		Pop-Location
 	}
-}
-finally
-{
-	Set-Location $loc
 }
 
 if ($IsLinux)
 {
-	./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel $Platform $OutDir $RuntimeDir
+	./package-linux.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir
 
 	If ( $LastExitCode -ne 0 )
 	{
-		throw "./package.sh $Configuration $TargetFramework $Version $PowerShellSdkVersion $ModuleId $Channel $Platform error $LastExitCode"
+		throw "./package-linux.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir error $LastExitCode"
+	}
+}
+
+if ($IsMacOs)
+{
+	./package-osx.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir
+
+	If ( $LastExitCode -ne 0 )
+	{
+		throw "./package-osx.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir error $LastExitCode"
+	}
+}
+
+if ($IsWindows)
+{
+	pwsh ./package-win.ps1 $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir
+
+	If ( $LastExitCode -ne 0 )
+	{
+		throw "pwsh ./package-win.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir error $LastExitCode"
 	}
 }
