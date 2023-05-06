@@ -14,14 +14,29 @@ namespace UnitTests
     public abstract class ClientTests
     {
         protected abstract IWebApplicationFactory CreateWebApplicationFactory();
+        protected IWebApplicationFactory app;
+        protected IWebHostEnvironment env;
+        protected HttpClient client;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            app = CreateWebApplicationFactory();
+            env = app.Services.GetService<IWebHostEnvironment>();
+            client = app.CreateClient();
+        }
+
+        [TestCleanup]
+        public Task Cleanup()
+        {
+            client.Dispose();
+            return app.DisposeAsync().AsTask();
+        }
 
         [TestMethod]
         public async Task GetFoo()
         {
-            using var app = CreateWebApplicationFactory();
-            string url = "/foo";
-
-            using var client = app.CreateClient();
+            const string url = "/foo";
 
             var response = await client.GetAsync(url);
 
@@ -37,10 +52,6 @@ namespace UnitTests
         [TestMethod]
         public async Task GetHeaders()
         {
-            using var app = CreateWebApplicationFactory();
-
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/Headers");
 
             response.EnsureSuccessStatusCode();
@@ -58,10 +69,6 @@ namespace UnitTests
         [TestMethod]
         public async Task GetQuery()
         {
-            using var app = CreateWebApplicationFactory();
-
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/Query?a=b");
 
             response.EnsureSuccessStatusCode();
@@ -79,10 +86,6 @@ namespace UnitTests
         [TestMethod]
         public async Task GetContentRootPath()
         {
-            using var app = CreateWebApplicationFactory();
-            var env = app.Services.GetService<IWebHostEnvironment>();
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/ContentRootPath");
 
             response.EnsureSuccessStatusCode();
@@ -96,10 +99,6 @@ namespace UnitTests
         [TestMethod]
         public virtual async Task GetWebRootPath()
         {
-            using var app = CreateWebApplicationFactory();
-            var env = app.Services.GetService<IWebHostEnvironment>();
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/WebRootPath");
 
             response.EnsureSuccessStatusCode();
@@ -113,10 +112,6 @@ namespace UnitTests
         [TestMethod]
         public async Task GetLogger()
         {
-            using var app = CreateWebApplicationFactory();
-            var env = app.Services.GetService<IWebHostEnvironment>();
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/Logger");
 
             response.EnsureSuccessStatusCode();
@@ -130,9 +125,6 @@ namespace UnitTests
         [TestMethod]
         public async Task GetNotFound()
         {
-            using var app = CreateWebApplicationFactory();
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/favicon.ico");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -146,8 +138,6 @@ namespace UnitTests
         [TestMethod]
         public async Task GetFault()
         {
-            using var app = CreateWebApplicationFactory();
-            using var client = app.CreateClient();
             bool fault;
 
             try
@@ -168,10 +158,6 @@ namespace UnitTests
         [TestMethod]
         public async Task GetPSVersionTable()
         {
-            using var app = CreateWebApplicationFactory();
-
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/PSVersionTable");
 
             response.EnsureSuccessStatusCode();
@@ -188,10 +174,7 @@ namespace UnitTests
         [TestMethod]
         public async Task PostForm()
         {
-            using var app = CreateWebApplicationFactory();
-            string url = "/bar";
-
-            using var client = app.CreateClient();
+            const string url = "/bar";
 
             HttpContent body = new StringContent("a=b", Encoding.UTF8, "application/x-www-form-urlencoded");
 
@@ -212,11 +195,8 @@ namespace UnitTests
         [TestMethod]
         public async Task PostString()
         {
-            using var app = CreateWebApplicationFactory();
-            string url = "/bar";
-            string data = "foo";
-
-            using var client = app.CreateClient();
+            const string url = "/bar";
+            const string data = "foo";
 
             HttpContent body = new StringContent(data, Encoding.ASCII, "text/plain");
 
@@ -236,11 +216,8 @@ namespace UnitTests
         [TestMethod]
         public async Task PostBinary()
         {
-            using var app = CreateWebApplicationFactory();
-            string url = "/bar";
+            const string url = "/bar";
             byte [] data = Encoding.ASCII.GetBytes("foo");
-
-            using var client = app.CreateClient();
 
             HttpContent body = new ByteArrayContent(data);
 
@@ -267,10 +244,6 @@ namespace UnitTests
         [TestMethod]
         public async Task PostQueryString()
         {
-            using var app = CreateWebApplicationFactory();
-
-            using var client = app.CreateClient();
-
             var response = await client.PostAsync("/bar?a=b", null);
 
             response.EnsureSuccessStatusCode();

@@ -26,9 +26,6 @@
     <ProjectReference Include="..\TestApp\TestApp.csproj" />
     <ProjectReference Include="..\TestEol\TestEol.csproj" />
     <ProjectReference Include="..\TestApi\TestApi.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
     <ProjectReference Include="..\TestPS1\TestPS1.csproj" />
   </ItemGroup>
 

@@ -5,6 +5,7 @@ using System.Net;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTests
 {
@@ -12,15 +13,28 @@ namespace UnitTests
     [TestClass]
     public class TestApiTests
     {
-        static readonly WebApplicationFactoryBuilder webClientFactory = new WebApplicationFactoryBuilder("TestApi.dll");
-        protected IWebApplicationFactory CreateWebApplicationFactory() => webClientFactory.Build();
+        static readonly WebApplicationFactoryBuilder webClientFactoryBuilder = new WebApplicationFactoryBuilder("TestApi.dll");
+
+        protected IWebApplicationFactory app;
+        protected HttpClient client;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            app = webClientFactoryBuilder.Build();
+            client = app.CreateClient();
+        }
+
+        [TestCleanup] 
+        public Task Cleanup() 
+        { 
+            client.Dispose();
+            return app.DisposeAsync().AsTask();
+        }
 
         [TestMethod]
         public async Task GetNotFound()
         {
-            using var app = CreateWebApplicationFactory();
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/favicon.ico");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -29,10 +43,6 @@ namespace UnitTests
         [TestMethod]
         public async Task GetHelloWorld()
         {
-            using var app = CreateWebApplicationFactory();
-            var env = app.Services.GetService<IWebHostEnvironment>();
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/HelloWorld");
 
             response.EnsureSuccessStatusCode();
@@ -46,10 +56,6 @@ namespace UnitTests
         [TestMethod]
         public async Task GetWeatherForecast()
         {
-            using var app = CreateWebApplicationFactory();
-
-            using var client = app.CreateClient();
-
             var response = await client.GetAsync("/WeatherForecast");
 
             response.EnsureSuccessStatusCode();

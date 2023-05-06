@@ -3,12 +3,12 @@
 
 namespace UnitTests
 {
-#if NET7_0_OR_GREATER
+#if NET6_0_OR_GREATER
     [TestClass]
     public class TestPS1Tests : ClientTests
     {
-        static readonly WebApplicationFactoryBuilder webClientFactory = new WebApplicationFactoryBuilder("TestPS1.dll");
-        protected override IWebApplicationFactory CreateWebApplicationFactory() => webClientFactory.Build();
+        static readonly WebApplicationFactoryBuilder webClientFactoryBuilder = new WebApplicationFactoryBuilder("TestPS1.dll");
+        protected override IWebApplicationFactory CreateWebApplicationFactory() => webClientFactoryBuilder.Build();
         [Ignore]
         public override Task GetWebRootPath() => Task.CompletedTask;
     }

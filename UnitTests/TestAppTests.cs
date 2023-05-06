@@ -6,7 +6,7 @@ namespace UnitTests
     [TestClass]
     public class TestAppTests : ClientTests
     {
-        static readonly WebApplicationFactoryBuilder webClientFactory = new WebApplicationFactoryBuilder("TestApp.dll");
-        protected override IWebApplicationFactory CreateWebApplicationFactory() => webClientFactory.Build();
+        static readonly WebApplicationFactoryBuilder webClientFactoryBuilder = new WebApplicationFactoryBuilder("TestApp.dll");
+        protected override IWebApplicationFactory CreateWebApplicationFactory() => webClientFactoryBuilder.Build();
     }
 }

@@ -40,5 +40,6 @@ namespace UnitTests
         public IServiceProvider Services => (IServiceProvider)propertyServices.GetValue(factory);
         public HttpClient CreateClient() => (HttpClient)methodCreateClient.Invoke(factory,null);
         public void Dispose() => factory.Dispose();
+        public ValueTask DisposeAsync() => (factory as IAsyncDisposable).DisposeAsync();
     }
 }

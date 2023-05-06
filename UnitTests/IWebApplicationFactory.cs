@@ -3,7 +3,7 @@
 
 namespace UnitTests
 {
-    public interface IWebApplicationFactory : IDisposable
+    public interface IWebApplicationFactory : IDisposable,IAsyncDisposable
     {
         HttpClient CreateClient();
         IServiceProvider Services { get; }
