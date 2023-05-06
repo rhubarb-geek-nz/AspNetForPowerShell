@@ -5,7 +5,7 @@
     <version>VERSION_PLACEHOLDER</version>
     <authors>Roger Brown</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">LGPL-3.0-or-later</license>
+    <license type="expression">MIT</license>
     <readme>README.md</readme>
     <projectUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell</projectUrl>
     <description>AspNetCore for PowerShell VERSION_PLACEHOLDER</description>

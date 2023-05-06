@@ -1,4 +1,7 @@
-﻿param(
+# Copyright (c) 2023 Roger Brown.
+# Licensed under the MIT License.
+
+param(
     [parameter(Mandatory=$true)]
     $context,
     [parameter(ValueFromPipeline=$true,Mandatory=$false)]

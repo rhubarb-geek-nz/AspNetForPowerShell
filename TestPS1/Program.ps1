@@ -1,4 +1,7 @@
-﻿param($args)
+# Copyright (c) 2023 Roger Brown.
+# Licensed under the MIT License.
+
+param($args)
 
 trap
 {
