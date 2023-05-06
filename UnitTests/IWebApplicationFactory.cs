@@ -3,7 +3,7 @@
 
 namespace UnitTests
 {
-    public interface IWebClient : IDisposable
+    public interface IWebApplicationFactory : IDisposable
     {
         HttpClient CreateClient();
         IServiceProvider Services { get; }

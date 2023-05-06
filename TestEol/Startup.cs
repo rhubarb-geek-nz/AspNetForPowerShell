@@ -18,12 +18,7 @@ namespace TestEol
         {
             var installer = InitialSessionState.CreateDefault();
 
-            foreach (Type t in new Type[]{typeof(NewRequestDelegate)})
-            {
-                CmdletAttribute ca = t.GetCustomAttribute<CmdletAttribute>();
-
-                installer.Commands.Add(new SessionStateCmdletEntry($"{ca.VerbName}-{ca.NounName}", t, ca.HelpUri));
-            }
+            installer.AddAspNetForPowerShellCmdlets();
 
             using (PowerShell powerShell = PowerShell.Create(installer))
             {

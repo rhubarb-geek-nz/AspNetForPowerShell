@@ -5,31 +5,31 @@ using System.Reflection;
 
 namespace UnitTests
 {
-    internal class WebClientFactory
+    internal class WebApplicationFactoryBuilder
     {
         readonly Assembly assemblyTestApp;
         readonly Type typeFactoryProgram;
 
-        internal WebClientFactory(string appName)
+        internal WebApplicationFactoryBuilder(string appName)
         {
             assemblyTestApp = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + appName);
             typeFactoryProgram = typeof(WebApplicationFactory<>).MakeGenericType(new[] { assemblyTestApp.GetType("Program") });
         }
 
-        public IWebClient Create()
+        public IWebApplicationFactory Build()
         {
-            return new WebClient(typeFactoryProgram);
+            return new WebApplicationFactoryReflection(typeFactoryProgram);
         }
     }
 
-    internal class WebClient : IWebClient
+    internal class WebApplicationFactoryReflection : IWebApplicationFactory
     {
         readonly Type typeFactoryProgram;
         readonly PropertyInfo propertyServices;
         readonly MethodInfo methodCreateClient;
         readonly IDisposable factory;
 
-        internal WebClient(Type t)
+        internal WebApplicationFactoryReflection(Type t)
         {
             typeFactoryProgram = t;
             propertyServices = typeFactoryProgram.GetProperty("Services", typeof(IServiceProvider));

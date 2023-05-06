@@ -8,8 +8,8 @@ namespace UnitTests
     [TestClass]
     public class TestEolTests : ClientTests
     {
-        protected override IWebClient CreateWebClient() => new TestEolWebClient();
+        protected override IWebApplicationFactory CreateWebApplicationFactory() => new TestEolWebClient();
     }
 
-    class TestEolWebClient : WebApplicationFactory<Program>, IWebClient { }
+    class TestEolWebClient : WebApplicationFactory<Program>, IWebApplicationFactory { }
 }

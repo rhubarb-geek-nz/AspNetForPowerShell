@@ -7,8 +7,8 @@ namespace UnitTests
     [TestClass]
     public class TestPS1Tests : ClientTests
     {
-        static readonly WebClientFactory webClientFactory = new WebClientFactory("TestPS1.dll");
-        protected override IWebClient CreateWebClient() => webClientFactory.Create();
+        static readonly WebApplicationFactoryBuilder webClientFactory = new WebApplicationFactoryBuilder("TestPS1.dll");
+        protected override IWebApplicationFactory CreateWebApplicationFactory() => webClientFactory.Build();
         [Ignore]
         public override Task GetWebRootPath() => Task.CompletedTask;
     }

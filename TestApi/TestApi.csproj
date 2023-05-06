@@ -1,13 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetForPowerShell\AspNetForPowerShell.csproj" />
-    <ProjectReference Include="..\Extensions\Extensions.csproj" />
     <ProjectReference Include="..\PowerShellDelegate\PowerShellDelegate.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
@@ -26,12 +25,12 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.3.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.11" />
   </ItemGroup>
 
 </Project>

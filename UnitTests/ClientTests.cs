@@ -13,12 +13,12 @@ namespace UnitTests
 {
     public abstract class ClientTests
     {
-        protected abstract IWebClient CreateWebClient();
+        protected abstract IWebApplicationFactory CreateWebApplicationFactory();
 
         [TestMethod]
         public async Task GetFoo()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
             string url = "/foo";
 
             using var client = app.CreateClient();
@@ -37,7 +37,7 @@ namespace UnitTests
         [TestMethod]
         public async Task GetHeaders()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
 
             using var client = app.CreateClient();
 
@@ -58,7 +58,7 @@ namespace UnitTests
         [TestMethod]
         public async Task GetQuery()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
 
             using var client = app.CreateClient();
 
@@ -79,7 +79,7 @@ namespace UnitTests
         [TestMethod]
         public async Task GetContentRootPath()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
             var env = app.Services.GetService<IWebHostEnvironment>();
             using var client = app.CreateClient();
 
@@ -96,7 +96,7 @@ namespace UnitTests
         [TestMethod]
         public virtual async Task GetWebRootPath()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
             var env = app.Services.GetService<IWebHostEnvironment>();
             using var client = app.CreateClient();
 
@@ -113,7 +113,7 @@ namespace UnitTests
         [TestMethod]
         public async Task GetLogger()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
             var env = app.Services.GetService<IWebHostEnvironment>();
             using var client = app.CreateClient();
 
@@ -130,7 +130,7 @@ namespace UnitTests
         [TestMethod]
         public async Task GetNotFound()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
             using var client = app.CreateClient();
 
             var response = await client.GetAsync("/favicon.ico");
@@ -146,7 +146,7 @@ namespace UnitTests
         [TestMethod]
         public async Task GetFault()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
             using var client = app.CreateClient();
             bool fault;
 
@@ -168,7 +168,7 @@ namespace UnitTests
         [TestMethod]
         public async Task GetPSVersionTable()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
 
             using var client = app.CreateClient();
 
@@ -188,7 +188,7 @@ namespace UnitTests
         [TestMethod]
         public async Task PostForm()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
             string url = "/bar";
 
             using var client = app.CreateClient();
@@ -212,7 +212,7 @@ namespace UnitTests
         [TestMethod]
         public async Task PostString()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
             string url = "/bar";
             string data = "foo";
 
@@ -236,7 +236,7 @@ namespace UnitTests
         [TestMethod]
         public async Task PostBinary()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
             string url = "/bar";
             byte [] data = Encoding.ASCII.GetBytes("foo");
 
@@ -267,7 +267,7 @@ namespace UnitTests
         [TestMethod]
         public async Task PostQueryString()
         {
-            using var app = CreateWebClient();
+            using var app = CreateWebApplicationFactory();
 
             using var client = app.CreateClient();
 
