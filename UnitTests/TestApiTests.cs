@@ -3,13 +3,9 @@
 
 using System.Net;
 using System.Text.Json.Nodes;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTests
 {
-#if NET6_0_OR_GREATER
     [TestClass]
     public class TestApiTests
     {
@@ -69,5 +65,4 @@ namespace UnitTests
             Assert.IsInstanceOfType(result[0]["summary"].GetValue<string>(),typeof(string));
         }
     }
-#endif
 }

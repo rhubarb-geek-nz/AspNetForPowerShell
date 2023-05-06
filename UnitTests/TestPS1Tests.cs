@@ -3,7 +3,6 @@
 
 namespace UnitTests
 {
-#if NET6_0_OR_GREATER
     [TestClass]
     public class TestPS1Tests : ClientTests
     {
@@ -12,5 +11,4 @@ namespace UnitTests
         [Ignore]
         public override Task GetWebRootPath() => Task.CompletedTask;
     }
-#endif
 }
