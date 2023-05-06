@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PowerShellDelegate", "PowerShellDelegate\PowerShellDelegate.csproj", "{DB86CA41-EF9F-4536-9A7A-11B538B08D51}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPS1", "TestPS1\TestPS1.csproj", "{0028639E-1C3A-4148-A1C0-99E3A8EB87B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPs1", "TestPs1\TestPs1.csproj", "{0028639E-1C3A-4148-A1C0-99E3A8EB87B3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApi", "TestApi\TestApi.csproj", "{FE1EE063-F67D-414E-B4D3-EB9B29B5B59F}"
 EndProject

@@ -4,9 +4,9 @@
 namespace UnitTests
 {
     [TestClass]
-    public class TestPS1Tests : ClientTests
+    public class TestPs1Tests : ClientTests
     {
-        static readonly WebApplicationFactoryBuilder webClientFactoryBuilder = new WebApplicationFactoryBuilder("TestPS1.dll");
+        static readonly WebApplicationFactoryBuilder webClientFactoryBuilder = new WebApplicationFactoryBuilder("TestPs1.dll");
         protected override IWebApplicationFactory CreateWebApplicationFactory() => webClientFactoryBuilder.Build();
         [Ignore]
         public override Task GetWebRootPath() => Task.CompletedTask;

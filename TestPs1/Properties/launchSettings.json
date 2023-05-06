@@ -16,7 +16,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "TestPS1": {
+    "TestPs1": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5217",

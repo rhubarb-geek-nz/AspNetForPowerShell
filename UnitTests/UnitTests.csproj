@@ -26,7 +26,7 @@
     <ProjectReference Include="..\TestApp\TestApp.csproj" />
     <ProjectReference Include="..\TestEol\TestEol.csproj" />
     <ProjectReference Include="..\TestApi\TestApi.csproj" />
-    <ProjectReference Include="..\TestPS1\TestPS1.csproj" />
+    <ProjectReference Include="..\TestPs1\TestPs1.csproj" />
   </ItemGroup>
 
 </Project>

@@ -24,7 +24,6 @@ IsAnyCPU=false
 IsDebian=false
 IsRpm=false
 PowerShellSuffix=1
-PowerShellDependsDotnetRuntime=false
 
 for d in $( . /etc/os-release ; echo $ID $ID_LIKE )
 do
@@ -45,14 +44,6 @@ do
 			;;
 	esac
 done
-
-if $IsRpm
-then
-	if ( rpm -qR powershell | grep "^dotnet-runtime-" )
-	then
-		PowerShellDependsDotnetRuntime=true
-	fi
-fi
 
 case "$Platform" in
 	"AnyCPU" )
@@ -124,56 +115,51 @@ echo 2.0 > "$LinuxDir/debian-binary"
 
 cp -R "$OutDir$ModuleId" "$LinuxDir/data/$InstallDir/$ModuleId"
 
-if $PowerShellDependsDotnetRuntime
-then
-	:
-else
-	AspNetCoreDir="$LinuxDir/aspnetcore-$RuntimeVersion"
+AspNetCoreDir="$LinuxDir/aspnetcore-$RuntimeVersion"
 
-	case "$Platform" in
-		AnyCPU )
-			Architecture='<auto>'
-			;;
-		arm32 )
-			 Architecture='arm'
-			;;
-		* )
-			Architecture="$Platform"
-			;;
-	esac
+case "$Platform" in
+	AnyCPU )
+		Architecture='<auto>'
+		;;
+	arm32 )
+		 Architecture='arm'
+		;;
+	* )
+		Architecture="$Platform"
+		;;
+esac
 
-	curl --silent --fail --location --output "$LinuxDir/dotnet-install.sh" "https://dot.net/v1/dotnet-install.sh"
+curl --silent --fail --location --output "$LinuxDir/dotnet-install.sh" "https://dot.net/v1/dotnet-install.sh"
 		
-	mkdir "$AspNetCoreDir"
+mkdir "$AspNetCoreDir"
 
-	chmod +x "$LinuxDir/dotnet-install.sh"
+chmod +x "$LinuxDir/dotnet-install.sh"
 
-	"$LinuxDir/dotnet-install.sh" --install-dir "$AspNetCoreDir" --runtime aspnetcore --channel "$Channel" --version "$RuntimeVersion" --architecture "$Architecture"
+"$LinuxDir/dotnet-install.sh" --install-dir "$AspNetCoreDir" --runtime aspnetcore --channel "$Channel" --version "$RuntimeVersion" --architecture "$Architecture"
 
-	AspNetCoreDir="$AspNetCoreDir/shared/Microsoft.AspNetCore.App/$RuntimeVersion"
+AspNetCoreDir="$AspNetCoreDir/shared/Microsoft.AspNetCore.App/$RuntimeVersion"
 
-	ls -ld "$AspNetCoreDir" >/dev/null
+ls -ld "$AspNetCoreDir" >/dev/null
 
-	if $IsAnyCPU
-	then
-		(
-			set -e
-			cd "$AspNetCoreDir"
-			for d in *
-			do
-				echo "$d"
-			done
-		) | (
-			set -e
-			cd "$LinuxDir/data/$InstallDir/$ModuleId"
-			while read N
-			do
-				ln -s "/$RuntimeDir/$N" "$N"
-			done
-		)
-	else
-		cp -R "$AspNetCoreDir"/* "$LinuxDir/data/$InstallDir/$ModuleId/"
-	fi
+if $IsAnyCPU
+then
+	(
+		set -e
+		cd "$AspNetCoreDir"
+		for d in *
+		do
+			echo "$d"
+		done
+	) | (
+		set -e
+		cd "$LinuxDir/data/$InstallDir/$ModuleId"
+		while read N
+		do
+			ln -s "/$RuntimeDir/$N" "$N"
+		done
+	)
+else
+	cp -R "$AspNetCoreDir"/* "$LinuxDir/data/$InstallDir/$ModuleId/"
 fi
 
 if $IsDebian
@@ -198,7 +184,7 @@ Section: devel
 Priority: standard
 Installed-Size: $InstalledSize
 Maintainer: rhubarb-geek-nz@users.sourceforge.net
-Description: AspNetCore For PowerShell $PowerShellSdkVer
+Description: AspNetCore $RuntimeVersion For PowerShell $PowerShellSdkVer
 EOF
 
 	(
@@ -222,17 +208,12 @@ then
 	MajorVersion=$(echo $PowerShellSdkVer | sed "y/./ /" | while read A B C; do echo $A; done)
 	MinorVersion=$(echo $PowerShellSdkVer | sed "y/./ /" | while read A B C; do pwsh -c $B+1; done)
 
-	if $PowerShellDependsDotnetRuntime
+	RuntimeSummary="$RuntimeVersion"
+	if $IsAnyCPU
 	then
-
-		Requires="powershell >= $PowerShellSdkVer, powershell < $MajorVersion.$MinorVersion, aspnetcore-runtime-$Channel >= $RuntimeVersion"
+		Requires="powershell >= $PowerShellSdkVer, powershell < $MajorVersion.$MinorVersion, aspnetcore-runtime-$Channel = $RuntimeVersion"
 	else
-		if $IsAnyCPU
-		then
-			Requires="powershell >= $PowerShellSdkVer, powershell < $MajorVersion.$MinorVersion, aspnetcore-runtime-$Channel = $RuntimeVersion"
-		else
-			Requires="powershell >= $PowerShellSdkVer, powershell < $MajorVersion.$MinorVersion"
-		fi
+		Requires="powershell >= $PowerShellSdkVer, powershell < $MajorVersion.$MinorVersion"
 	fi
 
 	PackageName=rhubarb-geek-nz-aspnetforpowershell
@@ -243,7 +224,7 @@ then
 
 		(
 			cat << EOF
-Summary: AspNet For PowerShell
+Summary: AspNetCore $RuntimeSummary For PowerShell $PowerShellSdkVer
 Name: $PackageName
 Requires: $Requires
 Version: $PowerShellSdkVer

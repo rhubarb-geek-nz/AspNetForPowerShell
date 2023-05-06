@@ -5,7 +5,7 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Reflection;
 using RhubarbGeekNz.AspNetForPowerShell;
-using TestPS1;
+using TestPs1;
 
 var iss = InitialSessionState.CreateDefault();
 
