@@ -4,25 +4,26 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:60994",
+      "applicationUrl": "http://localhost:5274",
       "sslPort": 0
     }
   },
   "profiles": {
-    "TestApi": {
+    "TestCgi": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "HelloWorld",
-      "applicationUrl": "http://localhost:5225",
+      "launchUrl": "cgi-bin/HelloWorld.ps1",
+      "applicationUrl": "http://localhost:5217",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+        "POWERSHELL_TELEMETRY_OPTOUT": "1"
       },
       "dotnetRunMessages": true
     },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "HelloWorld",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

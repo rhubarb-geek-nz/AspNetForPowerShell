@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TestApp\TestApp.csproj" />
+    <ProjectReference Include="..\TestCgi\TestCgi.csproj" />
     <ProjectReference Include="..\TestEol\TestEol.csproj" />
     <ProjectReference Include="..\TestApi\TestApi.csproj" />
     <ProjectReference Include="..\TestPs1\TestPs1.csproj" />
