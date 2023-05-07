@@ -23,7 +23,13 @@ if (System.Environment.OSVersion.Platform==PlatformID.Win32NT)
 }
 
 var requestDelegate = new PowerShellDelegate(Resources.RequestDelegate, iss).InvokeAsync;
+var cgiBin = new PathString("/cgi-bin");
 
-app.Run((x) => requestDelegate(x));
+app.UseStaticFiles();
+
+app.Use((context, next) =>
+    context.Request.Path.StartsWithSegments((cgiBin)) ?
+        requestDelegate(context) :
+        next(context));
 
 await app.RunAsync();

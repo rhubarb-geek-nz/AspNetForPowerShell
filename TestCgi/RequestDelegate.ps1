@@ -16,31 +16,20 @@ trap
 $request = $context.Request
 $response = $context.Response
 
-$filePath = $request.Path.Value
+$filePath = ( $WebRootPath + $request.Path.Value )
 
-if ( $filePath.Contains('..') )
+if ( Test-Path -LiteralPath $filePath -PathType Leaf )
 {
-	$response.StatusCode = 400
-}
-else
-{
-	$filePath = ( $WebRootPath + $filePath )
-
-	if ( Test-Path -LiteralPath $filePath -PathType Leaf )
+	if ($filePath.EndsWith('.ps1'))
 	{
-		$response.StatusCode = 200
-
-		if ($filePath.EndsWith('.ps1'))
-		{
-			. $filePath
-		}
-		else
-		{
-			Get-Content -LiteralPath $filePath -AsByteStream -Raw | Write-Output -NoEnumerate
-		}
+		. $filePath
 	}
 	else
 	{
-		$response.StatusCode = 404
+		$response.StatusCode = 500
 	}
+}
+else
+{
+	$response.StatusCode = 404
 }

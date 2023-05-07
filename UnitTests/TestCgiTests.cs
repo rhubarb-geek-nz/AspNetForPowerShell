@@ -62,6 +62,7 @@ namespace UnitTests
 
             var content = await response.Content.ReadAsStringAsync();
 
+            Assert.AreEqual("text/plain", response.Content.Headers.ContentType.ToString());
             Assert.AreEqual("This page is intentionally left blank", content.Trim());
         }
     }
