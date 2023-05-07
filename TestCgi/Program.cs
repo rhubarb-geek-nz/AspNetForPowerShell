@@ -28,7 +28,7 @@ var cgiBin = new PathString("/cgi-bin");
 app.UseStaticFiles();
 
 app.Use((context, next) =>
-    context.Request.Path.StartsWithSegments((cgiBin)) ?
+    context.Request.Path.StartsWithSegments(cgiBin) ?
         requestDelegate(context) :
         next(context));
 
