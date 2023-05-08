@@ -66,7 +66,7 @@ The code includes some hopefully interesting techniques
 - Test harness uses `WebApplicationFactory` with top-level programs; see [UnitTests/WebApplicationFactoryBuilder.cs](UnitTests/WebApplicationFactoryBuilder.cs)
 - Generates native packages to install matching `AspNetCore` runtime; see [AspNetForPowerShell/package.ps1](AspNetForPowerShell/package.ps1)
 - `PowerShell` can be used at different levels;
-  - Main `Program` c; see [TestPs1/Program.ps1](TestPs1/Program.ps1)
+  - Main `Program`; see [TestPs1/Program.ps1](TestPs1/Program.ps1)
   - `Startup` configuration; see [TestEol/Startup.ps1](TestEol/Startup.ps1)
   - `RequestDelegate` handler; see [TestCgi/RequestDelegate.ps1](TestCgi/RequestDelegate.ps1)
 - Combining with `Controllers`; see [TestApi/Program.cs](TestApi/Program.cs)
