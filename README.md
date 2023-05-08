@@ -73,5 +73,5 @@ The code includes some hopefully interesting techniques
 - Combining with static content; see [TestCgi/Program.cs](TestCgi/Program.cs)
 - Access resources from `PowerShell`; see [TestEol/Startup.ps1](TestEol/Startup.ps1)
 - Get services by type, eg `ILogger`; [TestPs1/Program.ps1](TestPs1/Program.ps1)
-- Extension to add `Cmdlets` to `InitialSessionState`; see [Extensions/Extensions.cs](Extensions/Extensions.cs)
+- Extension to add `Cmdlets` to `InitialSessionState`; see [Extensions/InitialSessionStateExtensions.cs](Extensions/InitialSessionStateExtensions.cs)
 - Using unit tests to validate `PowerShell` implementation; see [UnitTests/TestPs1Tests.cs](UnitTests/TestPs1Tests.cs)
