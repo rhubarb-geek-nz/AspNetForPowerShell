@@ -57,3 +57,21 @@ The output pipeline is written to the response body. The output is written as th
 ### Response Status
 
 The response status and any headers should be applied to the `HttpContext` before the output is written.
+
+## Interesting features
+
+The code includes some hopefully interesting techniques
+
+- `PowerShell` delegate uses asynchronous programming to simultaneously read and write the input and output pipelines while executing the `PowerShell` script without using threads; see [PowerShellDelegate/PowerShellDelegate.cs](PowerShellDelegate/PowerShellDelegate.cs)
+- Test harness uses `WebApplicationFactory` with top-level programs; see [UnitTests/WebApplicationFactoryBuilder.cs](UnitTests/WebApplicationFactoryBuilder.cs)
+- Generates native packages to install matching `AspNetCore` runtime; see [AspNetForPowerShell/package.ps1](AspNetForPowerShell/package.ps1)
+- `PowerShell` can be used at different levels;
+  - Main `Program` c; see [TestPs1/Program.ps1](TestPs1/Program.ps1)
+  - `Startup` configuration; see [TestEol/Startup.ps1](TestEol/Startup.ps1)
+  - `RequestDelegate` handler; see [TestCgi/RequestDelegate.ps1](TestCgi/RequestDelegate.ps1)
+- Combining with `Controllers`; see [TestApi/Program.cs](TestApi/Program.cs)
+- Combining with static content; see [TestCgi/Program.cs](TestCgi/Program.cs)
+- Access resources from `PowerShell`; see [TestEol/Startup.ps1](TestEol/Startup.ps1)
+- Get services by type, eg `ILogger`; [TestPs1/Program.ps1](TestPs1/Program.ps1)
+- Extension to add `Cmdlets` to `InitialSessionState`; see [Extensions/Extensions.cs](Extensions/Extensions.cs)
+- Using unit tests to validate `PowerShell` implementation; see [UnitTests/TestPs1Tests.cs](UnitTests/TestPs1Tests.cs)
