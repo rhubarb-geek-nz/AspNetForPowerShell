@@ -10,10 +10,10 @@ namespace UnitTests
         readonly Assembly assemblyTestApp;
         readonly Type typeFactoryProgram;
 
-        internal WebApplicationFactoryBuilder(string appName)
+        internal WebApplicationFactoryBuilder(string appName, string typeName = null)
         {
             assemblyTestApp = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + appName);
-            typeFactoryProgram = typeof(WebApplicationFactory<>).MakeGenericType(new[] { assemblyTestApp.GetType("Program") });
+            typeFactoryProgram = typeof(WebApplicationFactory<>).MakeGenericType(new[] { assemblyTestApp.GetType(typeName ?? "Program") });
         }
 
         public IWebApplicationFactory Build()
@@ -27,19 +27,19 @@ namespace UnitTests
         readonly Type typeFactoryProgram;
         readonly PropertyInfo propertyServices;
         readonly MethodInfo methodCreateClient;
-        readonly IDisposable factory;
+        readonly object factory;
 
         internal WebApplicationFactoryReflection(Type t)
         {
             typeFactoryProgram = t;
             propertyServices = typeFactoryProgram.GetProperty("Services", typeof(IServiceProvider));
             methodCreateClient = typeFactoryProgram.GetMethod("CreateClient", Array.Empty<Type>());
-            factory = (IDisposable)Activator.CreateInstance(typeFactoryProgram);
+            factory = Activator.CreateInstance(typeFactoryProgram);
         }
 
         public IServiceProvider Services => (IServiceProvider)propertyServices.GetValue(factory);
         public HttpClient CreateClient() => (HttpClient)methodCreateClient.Invoke(factory,null);
-        public void Dispose() => factory.Dispose();
+        public void Dispose() => (factory as IDisposable).Dispose();
         public ValueTask DisposeAsync() => (factory as IAsyncDisposable).DisposeAsync();
     }
 }

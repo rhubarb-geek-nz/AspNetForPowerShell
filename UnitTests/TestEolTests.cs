@@ -1,15 +1,15 @@
 // Copyright (c) 2023 Roger Brown.
 // Licensed under the MIT License.
 
-using TestEol;
-
 namespace UnitTests
 {
     [TestClass]
     public class TestEolTests : ClientTests
     {
-        protected override IWebApplicationFactory CreateWebApplicationFactory() => new TestEolWebClient();
+        protected override IWebApplicationFactory CreateWebApplicationFactory() => new WebApplicationFactoryWithInterface<TestEol.Program>();
     }
 
-    class TestEolWebClient : WebApplicationFactory<Program>, IWebApplicationFactory { }
+    class WebApplicationFactoryWithInterface<T> : WebApplicationFactory<T>, IWebApplicationFactory where T : class
+    {
+    }
 }
