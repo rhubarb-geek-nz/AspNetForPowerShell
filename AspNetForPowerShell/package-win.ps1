@@ -1,4 +1,3 @@
-#!/usr/bin/env pwsh
 # Copyright (c) 2023 Roger Brown.
 # Licensed under the MIT License.
 
@@ -118,7 +117,7 @@ try
 
 	$xmlDoc.Save((((Get-Location).Path)+"$DSC$ModuleName.wsx"))
 
-	& "$ENV:WIX/bin/candle.exe" -nologo "$ModuleName.wsx" -ext WixUtilExtension 
+	& "$ENV:WIX/bin/candle.exe" -nologo "$ModuleName.wsx" -ext WixUtilExtension
 
 	If ( $LastExitCode -ne 0 )
 	{
