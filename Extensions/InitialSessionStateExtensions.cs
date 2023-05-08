@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace RhubarbGeekNz.AspNetForPowerShell
 {
-    public static class AspNetForPowerShellExtensions
+    public static class InitialSessionStateExtensions
     {
         public static void AddAspNetForPowerShellCmdlets(this InitialSessionState initialSessionState)
         {
