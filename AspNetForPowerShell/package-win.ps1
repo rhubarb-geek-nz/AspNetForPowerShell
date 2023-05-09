@@ -21,8 +21,24 @@ if ( -not ( Test-Path $OutDir ))
 	throw "$OutDir not found"
 }
 
+$UpgradeCode = 'C25994C4-64E2-4D7F-ADCC-DCB26E5D0803'
+$IsWin64 = $True
+$ProgramFilesFolder = 'ProgramFiles64Folder'
+$Architecture = $Platform
+
 Switch ($Platform)
 {
+	'x86' {
+			$UpgradeCode = '258E2A88-F353-49F8-8626-D11851227C75'
+			$IsWin64 = $False
+			$ProgramFilesFolder = 'ProgramFilesFolder'
+		}
+	'arm32' {
+			$UpgradeCode = '258E2A88-F353-49F8-8626-D11851227C75'
+			$IsWin64 = $False
+			$ProgramFilesFolder = 'ProgramFilesFolder'
+			$Architecture = 'arm'
+		}
 	'x64' {
 		}
 	'arm64' {
@@ -34,7 +50,7 @@ Switch ($Platform)
 
 Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile ( "$OutDir"+"dotnet-install.ps1" )
 
-pwsh ($OutDir+'dotnet-install.ps1') -InstallDir ( $OutDir+'aspnetcore' ) -Runtime 'aspnetcore' -Channel $Channel -Version $RuntimeVersion -Architecture $Platform
+pwsh ($OutDir+'dotnet-install.ps1') -InstallDir ( $OutDir+'aspnetcore' ) -Runtime 'aspnetcore' -Channel $Channel -Version $RuntimeVersion -Architecture $Architecture
 
 If ( $LastExitCode -ne 0 )
 {
@@ -92,6 +108,7 @@ try
 
 	$productNode.Name = "$ModuleId $PowerShellSdkVersion ($Platform)"
 	$productNode.Version = "$PowerShellSdkVersion.0"
+	$productNode.UpgradeCode = $UpgradeCode
 
 	$packageNode = $xmlDoc.SelectSingleNode("/wix:Wix/wix:Product/wix:Package", $nsmgr)
 
@@ -101,12 +118,22 @@ try
 	$upgradeVersionNode = $xmlDoc.SelectSingleNode("/wix:Wix/wix:Product/wix:Upgrade/wix:UpgradeVersion", $nsmgr)
 
 	$upgradeVersionNode.Maximum = "$PowerShellSdkVersion.0"
+	$upgradeVersionNode.ParentNode.Id = ( '{' + $UpgradeCode + '}' )
 
 	$componentGroup =  $xmlDoc.SelectSingleNode("/wix:Wix/wix:Fragment/wix:ComponentGroup", $nsmgr)
 
 	$component =  $xmlDoc.SelectSingleNode("/wix:Wix/wix:Fragment/wix:ComponentGroup/wix:Component", $nsmgr)
 
 	$null = $componentGroup.RemoveChild($component)
+
+	$installDir =  $xmlDoc.SelectSingleNode("/wix:Wix/wix:Fragment/wix:Directory/wix:Directory", $nsmgr)
+	$installDir.Id = $ProgramFilesFolder
+
+	if ( -not $IsWin64 )
+	{
+		$null = $packageNode.RemoveAttribute('Platform')
+		$null = $component.RemoveAttribute('Win64')
+	}
 
 	foreach ($srcDir in $ModuleId,"aspnetcore\shared\Microsoft.AspNetCore.App\$RuntimeVersion")
 	{
