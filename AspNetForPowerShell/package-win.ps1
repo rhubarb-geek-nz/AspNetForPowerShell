@@ -3,10 +3,6 @@
 
 param($Configuration,$TargetFramework,$RuntimeVersion,$PowerShellSdkVersion,$ModuleId,$Channel,$Platform,$IntDir,$OutDir)
 
-$ModuleName = 'AspNetForPowerShell'
-$CompanyName = 'rhubarb-geek-nz'
-$DSC = [System.IO.Path]::DirectorySeparatorChar
-
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
@@ -23,6 +19,17 @@ if ( -not ( Test-Path $IntDir ))
 if ( -not ( Test-Path $OutDir ))
 {
 	throw "$OutDir not found"
+}
+
+Switch ($Platform)
+{
+	'x64' {
+		}
+	'arm64' {
+		}
+	default {
+			throw "Unsupported Platform $Platform"
+		}
 }
 
 Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile ( "$OutDir"+"dotnet-install.ps1" )
@@ -108,23 +115,23 @@ try
 
 			$clone = $component.CloneNode($true)
 			$clone.Id = ('C'+(New-Guid).ToString().Replace('-',''))
-			$clone.File.Source="$srcDir$DSC$name"
+			$clone.File.Source="$srcDir\$name"
 			$clone.File.Id = ('F'+(New-Guid).ToString().Replace('-',''))
 
 			$null = $componentGroup.AppendChild($clone)
 		}
 	}
 
-	$xmlDoc.Save((((Get-Location).Path)+"$DSC$ModuleName.wsx"))
+	$xmlDoc.Save((((Get-Location).Path)+"\$ModuleId.wsx"))
 
-	& "$ENV:WIX/bin/candle.exe" -nologo "$ModuleName.wsx" -ext WixUtilExtension
+	& "$ENV:WIX\bin\candle.exe" -nologo "$ModuleId.wsx" -ext WixUtilExtension
 
 	If ( $LastExitCode -ne 0 )
 	{
 		Exit $LastExitCode
 	}
 
-	& "$ENV:WIX/bin/light.exe" -nologo -cultures:null -out "$ModuleId-$PowerShellSdkVersion-win-$Platform.msi" "$ModuleName.wixobj" -ext WixUtilExtension
+	& "$ENV:WIX\bin\light.exe" -nologo -cultures:null -out "$ModuleId-$PowerShellSdkVersion-win-$Platform.msi" "$ModuleId.wixobj" -ext WixUtilExtension
 
 	If ( $LastExitCode -ne 0 )
 	{
