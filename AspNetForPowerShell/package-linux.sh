@@ -270,7 +270,7 @@ EOF
 
 	find "$LinuxDir/rpms" -type f -name "*.rpm" | while read N
 	do
-		ls -ld "$N"
+		test -f "$N"
 		mv "$N" "$OutDir"
 	done
 fi
