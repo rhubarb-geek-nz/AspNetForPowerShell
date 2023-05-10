@@ -16,6 +16,7 @@ PackageIdentifier="nz.geek.rhubarb.aspnetforpowershell"
 
 RuntimeDir="usr/share/dotnet/shared/Microsoft.AspNetCore.App/$RuntimeVersion"
 InstallDir="opt/microsoft/powershell/7/Modules"
+Maintainer=$(git config user.email)
 
 ls -ld "$IntDir" "$OutDir" "/$InstallDir" > /dev/null
 
@@ -175,8 +176,6 @@ then
 	InstalledSize=$(for d in $InstalledSize; do echo $d; break; done)
 	PackageName=rhubarb-geek-nz-aspnetforpowershell
 
-	Maintainer=$(git config user.email)
-
 	cat > "$LinuxDir/control/control" <<EOF
 Package: $PackageName
 Version: $PowerShellSdkVer-$PowerShellSuffix
@@ -233,6 +232,7 @@ Version: $PowerShellSdkVer
 Release: $PowerShellSuffix
 Group: Development/Libraries
 License: MIT
+Packager: $Maintainer
 BuildArch: $Arch
 Prefix: /$InstallDir
 
