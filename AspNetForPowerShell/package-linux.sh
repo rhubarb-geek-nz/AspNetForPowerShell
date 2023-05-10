@@ -175,6 +175,8 @@ then
 	InstalledSize=$(for d in $InstalledSize; do echo $d; break; done)
 	PackageName=rhubarb-geek-nz-aspnetforpowershell
 
+	Maintainer=$(git config user.email)
+
 	cat > "$LinuxDir/control/control" <<EOF
 Package: $PackageName
 Version: $PowerShellSdkVer-$PowerShellSuffix
@@ -183,7 +185,7 @@ Depends: $Depends
 Section: devel
 Priority: standard
 Installed-Size: $InstalledSize
-Maintainer: rhubarb-geek-nz@users.sourceforge.net
+Maintainer: $Maintainer
 Description: AspNetCore $RuntimeVersion For PowerShell $PowerShellSdkVer
 EOF
 

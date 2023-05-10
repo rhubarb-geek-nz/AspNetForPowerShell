@@ -191,6 +191,6 @@ if ($IsWindows)
 
 	If ( $LastExitCode -ne 0 )
 	{
-		throw "pwsh ./package-win.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir error $LastExitCode"
+		throw "pwsh ./package-win.ps1 $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir error $LastExitCode"
 	}
 }
