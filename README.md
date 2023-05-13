@@ -60,7 +60,7 @@ The response status and any headers should be applied to the `HttpContext` befor
 
 ### Request Cancellation
 
-The HttpRequest.RequestAborted is forwarded to the PowerShell.StopAsync to cancel long running pipelines when client has disconnected and response is no longer possible.
+The `HttpRequest.RequestAborted` is forwarded to the `PowerShell.StopAsync` to cancel long running pipelines when client has disconnected and response is no longer possible.
 
 ## Interesting features
 
