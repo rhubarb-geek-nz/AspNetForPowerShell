@@ -81,6 +81,16 @@ Get-ChildItem -LiteralPath $OutDir -Filter '*.dll' | ForEach-Object {
 	$Name = $_.Name
 
 	$_ | Copy-Item -Destination $ModulePath
+
+	if ( Test-Path -LiteralPath 'signtool.ps1' )
+	{
+		pwsh ./signtool.ps1 -Path ( $ModulePath + $DSC + $Name )
+
+		If ( $LastExitCode -ne 0 )
+		{
+			throw "signtool.ps1 $ModulePath$DSC$Name"
+		}
+	}
 }
 
 $Channel = $SDKChannels[$TargetFramework]

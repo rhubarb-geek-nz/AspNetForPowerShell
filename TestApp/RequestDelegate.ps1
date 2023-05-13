@@ -53,6 +53,10 @@ else
         '/Fault' {
             throw 'fault'
         }
+        '/Wait' {
+            Wait-Event
+            $response.StatusCode = 200
+        }
         default {
             $response.ContentType = 'text/plain'
             $request.Method

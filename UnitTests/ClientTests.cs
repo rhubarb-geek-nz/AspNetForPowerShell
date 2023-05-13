@@ -154,7 +154,6 @@ namespace UnitTests
             Assert.IsTrue(fault,"exception should have been thrown");
         }
 
-
         [TestMethod]
         public async Task GetPSVersionTable()
         {
@@ -253,6 +252,27 @@ namespace UnitTests
             Assert.AreEqual("text/plain", response.Content.Headers.ContentType.ToString());
 
             Assert.AreEqual("POST /bar ?a=b",content);
+        }
+
+        [TestMethod]
+        public async Task GetWait()
+        {
+            bool wasCancelled = false;
+
+            try
+            {
+                CancellationTokenSource src = new CancellationTokenSource();
+
+                src.CancelAfter(1000);
+
+                await client.GetAsync("/Wait", src.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                wasCancelled = true;
+            }
+
+            Assert.IsTrue(wasCancelled, "exception should have been raised");
         }
     }
 }

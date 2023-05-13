@@ -177,3 +177,13 @@ finally
 		}
 	}
 }
+
+if ( Test-Path -LiteralPath 'signtool.ps1' )
+{
+	pwsh ./signtool.ps1 -Path "$OutDir$ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
+
+	If ( $LastExitCode -ne 0 )
+	{
+		throw "signtool.ps1 $ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
+	}
+}

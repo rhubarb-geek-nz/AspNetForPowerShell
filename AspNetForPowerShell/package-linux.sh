@@ -69,7 +69,7 @@ case "$Platform" in
 		then
 			Arch="armhf"
 		else
-			Arch="armhfp"
+			Arch="armv7hl"
 		fi
 		;;
 	"x64" )

@@ -220,8 +220,19 @@ namespace RhubarbGeekNz.AspNetForPowerShell
 
             powerShell.AddScript(_script).AddParameter("context", context);
 
+            IDisposable registration = context.RequestAborted.Register(() =>
+            {
+                powerShell.StopAsync((t) =>
+                {
+                }, context).ContinueWith((t) =>
+                {
+                });
+            });
+
             Task invokeTask = powerShell.InvokeAsync(inputPipeline, outputPipeline).ContinueWith((t) =>
             {
+                registration.Dispose();
+
                 if (t.IsFaulted)
                 {
                     streamEncoding.invokeException = t.Exception;
@@ -234,7 +245,7 @@ namespace RhubarbGeekNz.AspNetForPowerShell
             {
                 powerShell.Dispose();
 
-                if (streamEncoding.invokeException != null)
+                if (streamEncoding.invokeException != null && !context.RequestAborted.IsCancellationRequested)
                 {
                     throw streamEncoding.invokeException;
                 }

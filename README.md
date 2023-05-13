@@ -58,6 +58,10 @@ The output pipeline is written to the response body. The output is written as th
 
 The response status and any headers should be applied to the `HttpContext` before the output is written.
 
+### Request Cancellation
+
+The HttpRequest.RequestAborted is forwarded to the PowerShell.StopAsync to cancel long running pipelines when client has disconnected and response is no longer possible.
+
 ## Interesting features
 
 The code includes some hopefully interesting techniques
