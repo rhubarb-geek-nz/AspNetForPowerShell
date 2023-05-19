@@ -19,9 +19,7 @@ foreach ($var in
 	$iss.Variables.Add((New-Object -TypeName 'System.Management.Automation.Runspaces.SessionStateVariableEntry' -ArgumentList $var))
 }
 
-$bindingFlags = [int32][System.Reflection.BindingFlags]::Static + [int32][System.Reflection.BindingFlags]::NonPublic
-
-$script = $res.GetProperty('RequestDelegate',$bindingFlags).GetValue($null)
+$script = $res.GetProperty('RequestDelegate',[System.Reflection.BindingFlags]'Static, NonPublic').GetValue($null)
 
 $delegate = New-AspNetForPowerShellRequestDelegate -Script $script -InitialSessionState $iss
 

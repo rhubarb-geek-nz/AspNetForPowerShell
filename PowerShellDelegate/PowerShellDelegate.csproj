@@ -4,34 +4,40 @@
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
     <AssemblyName>RhubarbGeekNz.AspNetForPowerShell.PowerShellDelegate</AssemblyName>
     <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
+    <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
+    <Product>AspNetCore for PowerShell</Product>
+    <Company>rhubarb-geek-nz</Company>
+    <AssemblyTitle>PowerShellDelegate for AspNetCore</AssemblyTitle>
+    <PackageVersion>7.3.4</PackageVersion>
+    <Authors>Roger Brown</Authors>
+    <Description>PowerShellDelegate for AspNetCore</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <Version>7.3.4</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <Version>7.2.11</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <Version>7.1.7</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <Version>7.0.13</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.3.4">
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="$(Version)">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.11">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.1.7">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.13">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
+  <Target Name="SignTool" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
+    <Exec Command="pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
+  </Target>
 
 </Project>
