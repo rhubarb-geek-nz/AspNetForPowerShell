@@ -3,36 +3,37 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
     <AssemblyName>RhubarbGeekNz.AspNetForPowerShell.Extensions</AssemblyName>
+    <PackageVersion>7.3.4</PackageVersion>
+    <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
+    <Product>AspNetCore for PowerShell</Product>
+    <Company>rhubarb-geek-nz</Company>
+    <AssemblyTitle>PowerShell extensions for AspNetCore</AssemblyTitle>
+    <Authors>Roger Brown</Authors>
+    <Description>PowerShell extensions for AspNetCore</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <Version>7.3.4</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <Version>7.2.11</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <Version>7.1.7</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <Version>7.0.13</Version>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AspNetForPowerShell\AspNetForPowerShell.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.3.4">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.11">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.1.7">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.13">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="$(Version)">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
