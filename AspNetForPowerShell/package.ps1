@@ -37,10 +37,9 @@ $Copyright = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Copyright").FirstC
 $AssemblyName = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/AssemblyName").FirstChild.Value
 
 $SDKChannels = @{
-	'netcoreapp3.1' = '3.1';
-	'net5.0' = '5.0';
 	'net6.0' = '6.0';
-	'net7.0' = '7.0'
+	'net7.0' = '7.0';
+	'net8.0' = '8.0'
 }
 
 $PackageReferences = $xmlDoc.SelectNodes("/Project/ItemGroup/PackageReference[@Include = 'Microsoft.PowerShell.SDK']")

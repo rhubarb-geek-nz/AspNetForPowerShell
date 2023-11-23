@@ -13,9 +13,7 @@ namespace RhubarbGeekNz.AspNetForPowerShell
         public static void AddAspNetForPowerShellCmdlets(this InitialSessionState initialSessionState)
         {
             foreach (Type t in new Type[] {
-#if NET6_0_OR_GREATER
                 typeof(NewWebApplication),
-#endif
                 typeof(NewRequestDelegate) 
             })
             {

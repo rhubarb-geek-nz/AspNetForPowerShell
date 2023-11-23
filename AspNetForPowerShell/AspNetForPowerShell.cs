@@ -33,7 +33,6 @@ namespace RhubarbGeekNz.AspNetForPowerShell
         }
     }
 
-#if NET6_0_OR_GREATER
     [Cmdlet(VerbsCommon.New, "AspNetForPowerShellWebApplication")]
     [OutputType(typeof(WebApplication))]
     public class NewWebApplication : PSCmdlet
@@ -55,5 +54,4 @@ namespace RhubarbGeekNz.AspNetForPowerShell
         {
         }
     }
-#endif
 }

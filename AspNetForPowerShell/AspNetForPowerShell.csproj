@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <AssemblyName>RhubarbGeekNz.AspNetForPowerShell</AssemblyName>
     <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
     <PackageId>rhubarb-geek-nz.AspNetForPowerShell</PackageId>
@@ -12,27 +12,23 @@
     <Authors>Roger Brown</Authors>
     <Description>AspNetCore for PowerShell</Description>
     <PackageProjectUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell</PackageProjectUrl>
-    <PackageVersion>7.3.4</PackageVersion>
+    <PackageVersion>7.4.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell.git</RepositoryUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+    <Version>7.4.0</Version>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <Version>7.3.4</Version>
+    <Version>7.3.10</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <Version>7.2.11</Version>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-    <Version>7.1.7</Version>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <Version>7.0.13</Version>
+    <Version>7.2.17</Version>
   </PropertyGroup>
 
   <ItemGroup>
