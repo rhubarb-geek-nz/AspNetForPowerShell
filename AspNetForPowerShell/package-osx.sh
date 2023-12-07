@@ -11,16 +11,17 @@ Channel="$6"
 Platform="$7"
 IntDir="$8"
 OutDir="$9"
+PublishDir="${10}"
 
 PackageIdentifier="nz.geek.rhubarb.aspnetforpowershell"
 
 RuntimeDir="/usr/local/share/dotnet/shared/Microsoft.AspNetCore.App/$RuntimeVersion"
 InstallDir="/usr/local/microsoft/powershell/7/Modules"
 
-ls -ld "$IntDir" "$OutDir" "$OutDir/$ModuleId" "$RuntimeDir" "$InstallDir"
+ls -ld "$IntDir" "$OutDir" "$RuntimeDir" "$InstallDir" "$PublishDir"
 
 dotnet --list-runtimes | grep "Microsoft.AspNetCore.App $RuntimeVersion \[/usr/local/share/dotnet/shared/Microsoft.AspNetCore.App\]"
-pwsh -c '$Env:PSModulePath' | grep ":$InstallDir"
+"$InstallDir/../pwsh" -c '$Env:PSModulePath' | grep ":$InstallDir"
 
 WorkDir="$OutDir"osx
 
@@ -42,7 +43,7 @@ mkdir "$WorkDir"
 (
 	mkdir -p "$WorkDir/root/$InstallDir/$ModuleId"
 
-	cp "$OutDir/$ModuleId/"* "$WorkDir/root/$InstallDir/$ModuleId"
+	cp "$PublishDir/"* "$WorkDir/root/$InstallDir/$ModuleId"
 
 	(
 		set -e

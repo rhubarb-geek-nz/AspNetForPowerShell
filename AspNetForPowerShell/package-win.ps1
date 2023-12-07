@@ -1,7 +1,7 @@
 # Copyright (c) 2023 Roger Brown.
 # Licensed under the MIT License.
 
-param($Configuration,$TargetFramework,$RuntimeVersion,$PowerShellSdkVersion,$ModuleId,$Channel,$Platform,$IntDir,$OutDir)
+param($Configuration,$TargetFramework,$RuntimeVersion,$PowerShellSdkVersion,$ModuleId,$Channel,$Platform,$IntDir,$OutDir,$PublishDir)
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -21,10 +21,16 @@ if ( -not ( Test-Path $OutDir ))
 	throw "$OutDir not found"
 }
 
+if ( -not ( Test-Path $PublishDir ))
+{
+	throw "$PublishDir not found"
+}
+
 $UpgradeCode = 'C25994C4-64E2-4D7F-ADCC-DCB26E5D0803'
 $IsWin64 = $True
 $ProgramFilesFolder = 'ProgramFiles64Folder'
 $Architecture = $Platform
+$InstallerVersion = 200
 
 Switch ($Platform)
 {
@@ -38,13 +44,15 @@ Switch ($Platform)
 			$IsWin64 = $False
 			$ProgramFilesFolder = 'ProgramFilesFolder'
 			$Architecture = 'arm'
+			$InstallerVersion = 500
 		}
 	'x64' {
 		}
 	'arm64' {
+			$InstallerVersion = 500
 		}
 	default {
-			throw "Unsupported Platform $Platform"
+			throw "Unsupported Platform $Platform, must be one of x86, x64, arm32, arm64"
 		}
 }
 
@@ -56,8 +64,6 @@ If ( $LastExitCode -ne 0 )
 {
 	throw 'dotnet-install.ps1'
 }
-
-Push-Location $OutDir
 
 try
 {
@@ -131,34 +137,36 @@ try
 
 	if ( -not $IsWin64 )
 	{
-		$null = $packageNode.RemoveAttribute('Platform')
 		$null = $component.RemoveAttribute('Win64')
 	}
 
-	foreach ($srcDir in $ModuleId,"aspnetcore\shared\Microsoft.AspNetCore.App\$RuntimeVersion")
+	$packageNode.Platform = $Architecture
+	$packageNode.InstallerVersion = "$InstallerVersion"
+
+	foreach ($srcDir in "$PublishDir",("$OutDir"+"aspnetcore\shared\Microsoft.AspNetCore.App\$RuntimeVersion\"))
 	{
 		Get-ChildItem $srcDir | ForEach-Object {
 			$name = $_.Name
 
 			$clone = $component.CloneNode($true)
 			$clone.Id = ('C'+(New-Guid).ToString().Replace('-',''))
-			$clone.File.Source="$srcDir\$name"
+			$clone.File.Source="$srcDir$name"
 			$clone.File.Id = ('F'+(New-Guid).ToString().Replace('-',''))
 
 			$null = $componentGroup.AppendChild($clone)
 		}
 	}
 
-	$xmlDoc.Save((((Get-Location).Path)+"\$ModuleId.wsx"))
+	$xmlDoc.Save("$OutDir$ModuleId.wsx")
 
-	& "$ENV:WIX\bin\candle.exe" -nologo "$ModuleId.wsx" -ext WixUtilExtension
+	& "$ENV:WIX\bin\candle.exe" -nologo -out "$OutDir$ModuleId.wixobj" "$OutDir$ModuleId.wsx" -ext WixUtilExtension
 
 	If ( $LastExitCode -ne 0 )
 	{
 		Exit $LastExitCode
 	}
 
-	& "$ENV:WIX\bin\light.exe" -nologo -cultures:null -out "$ModuleId-$PowerShellSdkVersion-win-$Platform.msi" "$ModuleId.wixobj" -ext WixUtilExtension
+	& "$ENV:WIX\bin\light.exe" -nologo -cultures:null -out "$OutDir$ModuleId-$PowerShellSdkVersion-win-$Platform.msi" "$OutDir$ModuleId.wixobj" -ext WixUtilExtension
 
 	If ( $LastExitCode -ne 0 )
 	{
@@ -167,8 +175,6 @@ try
 }
 finally
 {
-	Pop-Location
-
 	foreach ($p in ( $OutDir+'aspnetcore' ))
 	{
 		if ( Test-Path -LiteralPath $p )
@@ -178,7 +184,7 @@ finally
 	}
 }
 
-pwsh ..\signtool.ps1 -Path "$OutDir$ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
+dotnet pwsh ..\signtool.ps1 -Path "$OutDir$ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
 
 If ( $LastExitCode -ne 0 )
 {

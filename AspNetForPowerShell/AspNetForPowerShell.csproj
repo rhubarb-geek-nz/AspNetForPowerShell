@@ -35,6 +35,7 @@
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
@@ -52,6 +53,15 @@
   </Target>
 
   <Target Name="Package" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
+    <ItemGroup>
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).deps.json" />
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).pdb" />
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).PowerShellDelegate.deps.json" />
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).PowerShellDelegate.pdb" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+    <RemoveDir Directories="$(PublishDir)runtimes;$(PublishDir)ref" />
+    <Exec Command="dotnet pwsh ../signtool.ps1 $(PublishDir)$(AssemblyName).dll" />
     <Exec Command="dotnet pwsh -c &quot;Set-Variable -Name 'ErrorActionPreference' -Value 'Stop'; if ( -not ( Get-Module -ListAvailable -Name '$(Company).PowerShellDataFile' ) ) { Install-Module -Name '$(Company).PowerShellDataFile' -Repository 'PSGallery' -Force }&quot; " />
     <Exec Command="dotnet pwsh -ExecutionPolicy Bypass -File ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(PublishDir) $(Version)" />
   </Target>

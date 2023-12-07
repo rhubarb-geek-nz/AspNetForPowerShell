@@ -11,6 +11,7 @@ Channel="$6"
 Platform="$7"
 IntDir="$8"
 OutDir="$9"
+PublishDir="${10}"
 
 PackageIdentifier="nz.geek.rhubarb.aspnetforpowershell"
 
@@ -18,7 +19,7 @@ RuntimeDir="usr/share/dotnet/shared/Microsoft.AspNetCore.App/$RuntimeVersion"
 InstallDir="opt/microsoft/powershell/7/Modules"
 Maintainer=$(git config user.email)
 
-ls -ld "$IntDir" "$OutDir" "/$InstallDir" > /dev/null
+ls -ld "$IntDir" "$OutDir" "/$InstallDir" "$PublishDir" > /dev/null
 
 LinuxDir="$OutDir"linux
 IsAnyCPU=false
@@ -114,7 +115,7 @@ mkdir -p "$LinuxDir/control"
 
 echo 2.0 > "$LinuxDir/debian-binary"
 
-cp -R "$OutDir$ModuleId" "$LinuxDir/data/$InstallDir/$ModuleId"
+cp -R "$PublishDir" "$LinuxDir/data/$InstallDir/$ModuleId"
 
 AspNetCoreDir="$LinuxDir/aspnetcore-$RuntimeVersion"
 
