@@ -47,11 +47,13 @@
   </ItemGroup>
 
   <Target Name="SignTool" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
+    <Exec Command="dotnet tool restore" />
+    <Exec Command="dotnet pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
   </Target>
 
   <Target Name="Package" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="pwsh ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(TargetDir) $(Version)" />
+    <Exec Command="dotnet pwsh -c &quot;Set-Variable -Name 'ErrorActionPreference' -Value 'Stop'; if ( -not ( Get-Module -ListAvailable -Name '$(Company).PowerShellDataFile' ) ) { Install-Module -Name '$(Company).PowerShellDataFile' -Repository 'PSGallery' -Force }&quot; " />
+    <Exec Command="dotnet pwsh -ExecutionPolicy Bypass -File ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(PublishDir) $(Version)" />
   </Target>
 
 </Project>

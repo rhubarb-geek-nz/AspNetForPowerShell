@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Roger Brown.
 # Licensed under the MIT License.
 
-param($Configuration,$TargetFramework,$Platform,$IntDir,$OutDir,$TargetDir,$PowerShellSdkVersion)
+param($Configuration,$TargetFramework,$Platform,$IntDir,$OutDir,$PublishDir,$PowerShellSdkVersion)
 
 $ModuleName = 'AspNetForPowerShell'
 $CompanyName = 'rhubarb-geek-nz'
@@ -95,29 +95,11 @@ New-ModuleManifest -Path "$ModulePath/$ModuleId.psd1" `
 				-AliasesToExport @() `
 				-ProjectUri $ProjectUri
 
-Get-Content -LiteralPath "$ModulePath/$ModuleId.psd1" | ForEach-Object {
-	$T = $_.Trim()
-	if ($T)
-	{
-		if ( -not $T.StartsWith('#') )
-		{
-			if ($T.StartsWith('} # End of '))
-			{
-				$_.Substring(0,$_.IndexOf('}')+1)
-			}
-			else
-			{
-				$_
-			}
-		}
-	}
-} | Set-Content -LiteralPath "$ModulePath/$ModuleId.psd1.clean"
+Import-PowerShellDataFile -LiteralPath "$ModulePath/$ModuleId.psd1" | Export-PowerShellDataFile | Out-File -LiteralPath "$ModulePath/$ModuleId.psd1.clean"
 
 Remove-Item -LiteralPath "$ModulePath/$ModuleId.psd1"
 
 Move-Item -LiteralPath "$ModulePath/$ModuleId.psd1.clean" -Destination "$ModulePath/$ModuleId.psd1"
-
-Import-PowerShellDataFile -LiteralPath "$ModulePath/$ModuleId.psd1"
 
 if ($IsLinux)
 {
@@ -141,7 +123,7 @@ if ($IsMacOs)
 
 if ($IsWindows)
 {
-	pwsh ./package-win.ps1 $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir
+	dotnet pwsh ./package-win.ps1 $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir
 
 	If ( $LastExitCode -ne 0 )
 	{

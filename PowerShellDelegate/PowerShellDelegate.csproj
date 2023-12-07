@@ -33,7 +33,8 @@
   </ItemGroup>
 
   <Target Name="SignTool" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
+    <Exec Command="dotnet tool restore" />
+    <Exec Command="dotnet pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
   </Target>
 
 </Project>
