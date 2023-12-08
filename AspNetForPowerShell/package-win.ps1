@@ -184,9 +184,9 @@ finally
 	}
 }
 
-dotnet pwsh ..\signtool.ps1 -Path "$OutDir$ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
+& signtool sign /a /sha1 601A8B683F791E51F647D34AD102C38DA4DDB65F /fd SHA256 /t http://timestamp.digicert.com "$OutDir$ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
 
 If ( $LastExitCode -ne 0 )
 {
-	throw "signtool.ps1 $ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
+	throw "signtool $ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
 }

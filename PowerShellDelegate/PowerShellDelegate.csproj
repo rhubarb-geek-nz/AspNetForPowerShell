@@ -11,6 +11,7 @@
     <PackageVersion>7.4.0</PackageVersion>
     <Authors>Roger Brown</Authors>
     <Description>PowerShellDelegate for AspNetCore</Description>
+    <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
@@ -32,9 +33,16 @@
     </PackageReference>
   </ItemGroup>
 
-  <Target Name="SignTool" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="dotnet tool restore" />
-    <Exec Command="dotnet pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
+  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' == 'Windows_NT' ">
+    <ItemGroup>
+        <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
+    </ItemGroup>
+    <Message Importance="high" Text="Signing assemblies: @(FileToSign)" />
+    <SignFile
+          SigningTarget="@(FileToSign)"
+          CertificateThumbprint="$(CertificateThumbprint)"
+          TimestampUrl="http://timestamp.digicert.com"
+    />
   </Target>
 
 </Project>
