@@ -35,7 +35,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' ">
+  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' == 'Windows_NT' ">
     <ItemGroup>
         <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
     </ItemGroup>
@@ -45,6 +45,15 @@
           CertificateThumbprint="$(CertificateThumbprint)"
           TimestampUrl="http://timestamp.digicert.com"
     />
+  </Target>
+
+  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' != 'Windows_NT' ">
+    <Exec Command="dotnet tool restore" />
+    <ItemGroup>
+        <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
+    </ItemGroup>
+    <Message Importance="high" Text="Signing assemblies: @(FileToSign)" />
+    <Exec Command="dotnet signtool sign /sha1 $(CertificateThumbprint) /fd SHA256 /t http://timestamp.digicert.com @(FileToSign)" />
   </Target>
 
 </Project>
