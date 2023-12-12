@@ -184,9 +184,11 @@ finally
 	}
 }
 
-& signtool sign /a /sha1 601A8B683F791E51F647D34AD102C38DA4DDB65F /fd SHA256 /t http://timestamp.digicert.com "$OutDir$ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
+$codeSignCertificate = Get-ChildItem -path Cert:\ -Recurse -CodeSigningCert | Where-Object {$_.Thumbprint -eq '601A8B683F791E51F647D34AD102C38DA4DDB65F'}
 
-If ( $LastExitCode -ne 0 )
+if ( -not $codeSignCertificate )
 {
-	throw "signtool $ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
+	throw 'Codesign certificate not found'
 }
+
+Set-AuthenticodeSignature -Certificate $codeSignCertificate -TimestampServer 'http://timestamp.digicert.com' -HashAlgorithm SHA256 -FilePath "$OutDir$ModuleId-$PowerShellSdkVersion-win-$Platform.msi"
