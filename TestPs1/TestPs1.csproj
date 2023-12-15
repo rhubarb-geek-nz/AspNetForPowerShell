@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetForPowerShell\AspNetForPowerShell.csproj" />
+    <ProjectReference Include="..\PSCmdlet\PSCmdlet.csproj" />
     <ProjectReference Include="..\Extensions\Extensions.csproj" />
     <ProjectReference Include="..\PowerShellDelegate\PowerShellDelegate.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>

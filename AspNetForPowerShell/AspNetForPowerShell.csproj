@@ -16,7 +16,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell</RepositoryUrl>
     <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
   </PropertyGroup>
 
@@ -43,12 +43,13 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\PowerShellDelegate\PowerShellDelegate.csproj" />
+    <ProjectReference Include="..\PSCmdlet\PSCmdlet.csproj" />
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="$(Version)">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
-  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' == 'Windows_NT' ">
+  <Target Name="SignWindows" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' == 'Windows_NT' ">
     <ItemGroup>
         <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
     </ItemGroup>
@@ -60,7 +61,7 @@
     />
   </Target>
 
-  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' != 'Windows_NT' ">
+  <Target Name="SignOthers" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' != 'Windows_NT' ">
     <Exec Command="dotnet tool restore" />
     <ItemGroup>
         <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
@@ -71,10 +72,13 @@
 
   <Target Name="Package" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
     <ItemGroup>
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).dll" />
       <FilesToDelete Include="$(PublishDir)$(AssemblyName).deps.json" />
       <FilesToDelete Include="$(PublishDir)$(AssemblyName).pdb" />
       <FilesToDelete Include="$(PublishDir)$(AssemblyName).PowerShellDelegate.deps.json" />
       <FilesToDelete Include="$(PublishDir)$(AssemblyName).PowerShellDelegate.pdb" />
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).PSCmdlet.deps.json" />
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).PSCmdlet.pdb" />
     </ItemGroup>
     <Delete Files="@(FilesToDelete)" />
     <RemoveDir Directories="$(PublishDir)runtimes;$(PublishDir)ref" />

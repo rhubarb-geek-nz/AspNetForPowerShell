@@ -1,19 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-    <AssemblyName>RhubarbGeekNz.AspNetForPowerShell.Extensions</AssemblyName>
-    <PackageVersion>7.4.0</PackageVersion>
-    <Copyright>Copyright © 2023 Roger Brown</Copyright>
+    <AssemblyName>RhubarbGeekNz.AspNetForPowerShell.PSCmdlet</AssemblyName>
+    <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
+    <PackageId>rhubarb-geek-nz.AspNetForPowerShell.PSCmdlet</PackageId>
+    <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
     <Product>AspNetCore for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
-    <AssemblyTitle>PowerShell extensions for AspNetCore</AssemblyTitle>
+    <AssemblyTitle>PowerShell Cmdlets for AspNetCore</AssemblyTitle>
     <Authors>Roger Brown</Authors>
-    <Description>PowerShell extensions for AspNetCore</Description>
-    <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
+    <Description>AspNetCore for PowerShell</Description>
+    <PackageProjectUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell</PackageProjectUrl>
+    <PackageVersion>7.4.0</PackageVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>rhubarb-geek-nz.AspNetForPowerShell.Extensions</PackageId>
+    <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell</RepositoryUrl>
+    <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
@@ -29,17 +33,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PSCmdlet\PSCmdlet.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="README.md">
+    <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\PowerShellDelegate\PowerShellDelegate.csproj" />
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="$(Version)">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>

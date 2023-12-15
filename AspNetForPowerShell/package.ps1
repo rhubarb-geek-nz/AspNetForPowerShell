@@ -45,7 +45,7 @@ if ( -not $RuntimeVersion )
 $Channel = $SDKChannels[$TargetFramework]
 
 New-ModuleManifest -Path "$OutDir$ModuleId.psd1" `
-				-RootModule "$AssemblyName.dll" `
+				-RootModule "$AssemblyName.PSCmdlet.dll" `
 				-ModuleVersion $PowerShellSdkVersion `
 				-Guid '59727163-f9c0-447d-9176-fc455fe932ef' `
 				-Author $Author `

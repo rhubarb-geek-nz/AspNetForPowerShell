@@ -12,6 +12,9 @@
     <Authors>Roger Brown</Authors>
     <Description>PowerShellDelegate for AspNetCore</Description>
     <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>rhubarb-geek-nz.AspNetForPowerShell.PowerShellDelegate</PackageId>
+    <RepositoryUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
@@ -27,13 +30,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="$(Version)">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
-  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' == 'Windows_NT' ">
+  <Target Name="SignWindows" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' == 'Windows_NT' ">
     <ItemGroup>
         <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
     </ItemGroup>
@@ -45,7 +55,7 @@
     />
   </Target>
 
-  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' != 'Windows_NT' ">
+  <Target Name="SignOthers" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' AND '$(OS)' != 'Windows_NT' ">
     <Exec Command="dotnet tool restore" />
     <ItemGroup>
         <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
