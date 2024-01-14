@@ -8,7 +8,7 @@
     <Product>AspNetCore for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
     <AssemblyTitle>PowerShellDelegate for AspNetCore</AssemblyTitle>
-    <PackageVersion>7.4.0</PackageVersion>
+    <PackageVersion>7.4.1</PackageVersion>
     <Authors>Roger Brown</Authors>
     <Description>PowerShellDelegate for AspNetCore</Description>
     <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
@@ -18,15 +18,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <Version>7.4.0</Version>
+    <Version>7.4.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <Version>7.3.10</Version>
+    <Version>7.3.11</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <Version>7.2.17</Version>
+    <Version>7.2.18</Version>
   </PropertyGroup>
 
   <ItemGroup>
