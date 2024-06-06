@@ -12,7 +12,7 @@
     <Authors>Roger Brown</Authors>
     <Description>AspNetCore for PowerShell</Description>
     <PackageProjectUrl>https://github.com/rhubarb-geek-nz/AspNetForPowerShell</PackageProjectUrl>
-    <PackageVersion>7.4.1</PackageVersion>
+    <PackageVersion>7.4.2</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
@@ -21,15 +21,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <Version>7.4.1</Version>
+    <Version>7.4.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <Version>7.3.11</Version>
+    <Version>7.3.12</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <Version>7.2.18</Version>
+    <Version>7.2.19</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -83,8 +83,8 @@
     <Delete Files="@(FilesToDelete)" />
     <RemoveDir Directories="$(PublishDir)runtimes;$(PublishDir)ref" />
     <Exec Command="dotnet tool restore" />
-    <Exec Command="dotnet pwsh -c &quot;Set-Variable -Name 'ErrorActionPreference' -Value 'Stop'; if ( -not ( Get-Module -ListAvailable -Name '$(Company).PowerShellDataFile' ) ) { Install-Module -Name '$(Company).PowerShellDataFile' -Repository 'PSGallery' -Force }&quot; " />
-    <Exec Command="dotnet pwsh -ExecutionPolicy Bypass -File ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(PublishDir) $(Version)" />
+    <Exec Command="dotnet pwsh -NoProfile -ExecutionPolicy Bypass -c &quot;Set-Variable -Name 'ErrorActionPreference' -Value 'Stop'; if ( -not ( Get-Module -ListAvailable -Name '$(Company).PowerShellDataFile' ) ) { Install-Module -Name '$(Company).PowerShellDataFile' -Repository 'PSGallery' -Force }&quot; " />
+    <Exec Command="dotnet pwsh -NoProfile -ExecutionPolicy Bypass -File ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(PublishDir) $(Version)" />
   </Target>
 
 </Project>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <AssemblyName>RhubarbGeekNz.AspNetForPowerShell.Extensions</AssemblyName>
-    <PackageVersion>7.4.1</PackageVersion>
+    <PackageVersion>7.4.2</PackageVersion>
     <Copyright>Copyright © 2023 Roger Brown</Copyright>
     <Product>AspNetCore for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
@@ -17,15 +17,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <Version>7.4.1</Version>
+    <Version>7.4.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <Version>7.3.11</Version>
+    <Version>7.3.12</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <Version>7.2.18</Version>
+    <Version>7.2.19</Version>
   </PropertyGroup>
 
   <ItemGroup>
