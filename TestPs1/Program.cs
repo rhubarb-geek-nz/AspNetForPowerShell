@@ -3,7 +3,6 @@
 
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-using System.Reflection;
 using RhubarbGeekNz.AspNetForPowerShell;
 using TestPs1;
 

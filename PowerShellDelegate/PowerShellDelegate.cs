@@ -186,7 +186,7 @@ namespace RhubarbGeekNz.AspNetForPowerShell
 
     public class PowerShellDelegate
     {
-        readonly string _script;
+        readonly ScriptBlock _scriptBlock;
         readonly InitialSessionState _initialSessionState;
 
         private readonly static Dictionary<string, Encoding> ContentTypeEncodings = new Dictionary<string, Encoding>()
@@ -195,14 +195,14 @@ namespace RhubarbGeekNz.AspNetForPowerShell
             { MediaTypeNames.Text.Plain, Encoding.ASCII }
         };
 
-        public PowerShellDelegate(string script)
+        public PowerShellDelegate(ScriptBlock scriptBlock)
         {
-            _script = script;
+            _scriptBlock = scriptBlock;
         }
 
-        public PowerShellDelegate(string script, InitialSessionState initialSessionState)
+        public PowerShellDelegate(ScriptBlock scriptBlock, InitialSessionState initialSessionState)
         {
-            _script = script;
+            _scriptBlock = scriptBlock;
             _initialSessionState = initialSessionState;
         }
 
@@ -212,13 +212,16 @@ namespace RhubarbGeekNz.AspNetForPowerShell
             PSDataCollection<object> outputPipeline = new PSDataCollection<object>();
             StreamEncoding streamEncoding = new StreamEncoding(context.Response.Body, Encoding.UTF8, outputPipeline);
 
-            ReadInputPipeline(context,streamEncoding, inputPipeline);
+            ReadInputPipeline(context, streamEncoding, inputPipeline);
 
             PowerShell powerShell = _initialSessionState == null
                 ? PowerShell.Create()
                 : PowerShell.Create(_initialSessionState);
 
-            powerShell.AddScript(_script).AddParameter("context", context);
+            powerShell
+                .AddScript("param($script,$context,[Parameter(ValueFromPipeline=$True)]$input) $input | & $script $context")
+                .AddArgument(_scriptBlock)
+                .AddArgument(context);
 
             IDisposable registration = context.RequestAborted.Register(() =>
             {

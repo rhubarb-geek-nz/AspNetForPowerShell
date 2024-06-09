@@ -8,12 +8,12 @@ using System.Management.Automation.Runspaces;
 
 namespace RhubarbGeekNz.AspNetForPowerShell
 {
-    [Cmdlet(VerbsCommon.New,"AspNetForPowerShellRequestDelegate")]
+    [Cmdlet(VerbsCommon.New, "AspNetForPowerShellRequestDelegate")]
     [OutputType(typeof(RequestDelegate))]
     public class NewRequestDelegate : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
-        public string Script { get; set; }
+        public ScriptBlock ScriptBlock { get; set; }
         [Parameter(Mandatory = false, Position = 1)]
         public InitialSessionState InitialSessionState { get; set; }
 
@@ -23,7 +23,7 @@ namespace RhubarbGeekNz.AspNetForPowerShell
 
         protected override void ProcessRecord()
         {
-            PowerShellDelegate powerShellDelegate = InitialSessionState == null ? new PowerShellDelegate(Script) : new PowerShellDelegate(Script, InitialSessionState);
+            PowerShellDelegate powerShellDelegate = InitialSessionState == null ? new PowerShellDelegate(ScriptBlock) : new PowerShellDelegate(ScriptBlock, InitialSessionState);
             RequestDelegate requestDelegate = powerShellDelegate.InvokeAsync;
             WriteObject(requestDelegate);
         }

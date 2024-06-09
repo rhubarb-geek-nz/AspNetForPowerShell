@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using RhubarbGeekNz.AspNetForPowerShell;
+using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using TestApi;
 
@@ -21,6 +22,6 @@ iss.Variables.Add(new[]{
     new SessionStateVariableEntry("Logger", app.Logger, "Logger")
 });
 
-app.MapGet("/HelloWorld", new PowerShellDelegate(Resources.HelloWorld,iss).InvokeAsync);
+app.MapGet("/HelloWorld", new PowerShellDelegate(ScriptBlock.Create(Resources.HelloWorld),iss).InvokeAsync);
 
 app.Run();

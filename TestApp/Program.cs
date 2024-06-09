@@ -1,6 +1,7 @@
 // Copyright (c) 2023 Roger Brown.
 // Licensed under the MIT License.
 
+using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using RhubarbGeekNz.AspNetForPowerShell;
 using TestApp;
@@ -16,7 +17,7 @@ iss.Variables.Add(new[]{
     new SessionStateVariableEntry("Logger", logger, "Logger")
 });
 
-var requestDelegate = new PowerShellDelegate(Resources.RequestDelegate, iss).InvokeAsync;
+var requestDelegate = new PowerShellDelegate(ScriptBlock.Create(Resources.RequestDelegate), iss).InvokeAsync;
 
 app.Run((x) => requestDelegate(x));
 

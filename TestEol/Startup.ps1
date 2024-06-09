@@ -21,6 +21,8 @@ foreach ($var in
 
 $script = $res.GetProperty('RequestDelegate',[System.Reflection.BindingFlags]'Static, NonPublic').GetValue($null)
 
-$delegate = New-AspNetForPowerShellRequestDelegate -Script $script -InitialSessionState $iss
+$scriptBlock = [System.Management.Automation.ScriptBlock]::Create($script)
+
+$delegate = New-AspNetForPowerShellRequestDelegate -ScriptBlock $scriptBlock -InitialSessionState $iss
 
 [Microsoft.AspNetCore.Builder.RunExtensions]::Run($app,$delegate)

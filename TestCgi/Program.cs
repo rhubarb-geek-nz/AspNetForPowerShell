@@ -1,6 +1,7 @@
 // Copyright (c) 2023 Roger Brown.
 // Licensed under the MIT License.
 
+using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using Microsoft.PowerShell;
 using RhubarbGeekNz.AspNetForPowerShell;
@@ -22,7 +23,7 @@ if (System.Environment.OSVersion.Platform==PlatformID.Win32NT)
     iss.ExecutionPolicy = ExecutionPolicy.RemoteSigned;
 }
 
-var requestDelegate = new PowerShellDelegate(Resources.RequestDelegate, iss).InvokeAsync;
+var requestDelegate = new PowerShellDelegate(ScriptBlock.Create(Resources.RequestDelegate), iss).InvokeAsync;
 var cgiBin = new PathString("/cgi-bin");
 
 app.UseStaticFiles();

@@ -28,6 +28,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCgi", "TestCgi\TestCgi.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSCmdlet", "PSCmdlet\PSCmdlet.csproj", "{8FF041DE-8458-47D7-87C5-8FFB5CAAB6C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoRun", "DemoRun\DemoRun.csproj", "{B81A32C3-58DA-4410-BCA3-692204C55CA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -242,6 +244,26 @@ Global
 		{8FF041DE-8458-47D7-87C5-8FFB5CAAB6C1}.Release|x64.Build.0 = Release|x64
 		{8FF041DE-8458-47D7-87C5-8FFB5CAAB6C1}.Release|x86.ActiveCfg = Release|x86
 		{8FF041DE-8458-47D7-87C5-8FFB5CAAB6C1}.Release|x86.Build.0 = Release|x86
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|ARM32.ActiveCfg = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|ARM32.Build.0 = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|x64.Build.0 = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Debug|x86.Build.0 = Debug|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|ARM32.ActiveCfg = Release|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|ARM32.Build.0 = Release|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|ARM64.Build.0 = Release|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|x64.ActiveCfg = Release|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|x64.Build.0 = Release|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|x86.ActiveCfg = Release|Any CPU
+		{B81A32C3-58DA-4410-BCA3-692204C55CA7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
