@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <AssemblyName>RhubarbGeekNz.AspNetForPowerShell.PowerShellDelegate</AssemblyName>
     <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
     <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
     <Product>AspNetCore for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
     <AssemblyTitle>PowerShellDelegate for AspNetCore</AssemblyTitle>
-    <PackageVersion>7.4.2</PackageVersion>
+    <PackageVersion>7.4.3</PackageVersion>
     <Authors>Roger Brown</Authors>
     <Description>PowerShellDelegate for AspNetCore</Description>
     <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
@@ -18,15 +18,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <Version>7.4.2</Version>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <Version>7.3.12</Version>
+    <Version>7.4.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <Version>7.2.19</Version>
+    <Version>7.2.21</Version>
   </PropertyGroup>
 
   <ItemGroup>
