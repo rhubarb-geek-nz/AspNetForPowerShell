@@ -51,7 +51,7 @@ New-ModuleManifest -Path "$OutDir$ModuleId.psd1" `
 				-Author $Author `
 				-CompanyName $CompanyName `
 				-Copyright $Copyright `
-				-PowerShellHostVersion $PowerShellSdkVersion `
+				-PowerShellVersion $PowerShellSdkVersion `
 				-CompatiblePSEditions @($compatiblePSEdition) `
 				-Description $Description `
 				-FunctionsToExport @() `
@@ -61,33 +61,3 @@ New-ModuleManifest -Path "$OutDir$ModuleId.psd1" `
 				-ProjectUri $ProjectUri
 
 Import-PowerShellDataFile -LiteralPath "$OutDir$ModuleId.psd1" | Export-PowerShellDataFile | Out-File -LiteralPath "$PublishDir$ModuleId.psd1"
-
-if ($IsLinux)
-{
-	./package-linux.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir $PublishDir
-
-	If ( $LastExitCode -ne 0 )
-	{
-		throw "./package-linux.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir $PublishDir error $LastExitCode"
-	}
-}
-
-if ($IsMacOs)
-{
-	./package-osx.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir $PublishDir
-
-	If ( $LastExitCode -ne 0 )
-	{
-		throw "./package-osx.sh $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir $PublishDir error $LastExitCode"
-	}
-}
-
-if ($IsWindows)
-{
-	dotnet pwsh -ExecutionPolicy Bypass -File ./package-win.ps1 $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir $PublishDir
-
-	If ( $LastExitCode -ne 0 )
-	{
-		throw "pwsh ./package-win.ps1 $Configuration $TargetFramework $RuntimeVersion $PowerShellSdkVersion $ModuleId $Channel $Platform $IntDir $OutDir $PublishDir error $LastExitCode"
-	}
-}
